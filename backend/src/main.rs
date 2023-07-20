@@ -1,5 +1,10 @@
+use migration::MigratorTrait;
+use sea_orm::Database;
+
 mod config;
+mod entity;
 mod handler;
+mod utils;
 
 async fn shutdown_signal() {
     let ctrl_c = async {
@@ -31,7 +36,15 @@ async fn shutdown_signal() {
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt::init();
 
-    let router = crate::handler::create_router();
+    let db = Database::connect(format!(
+        "sqlite://{}",
+        crate::config::CONFIG.database_file_path
+    ))
+    .await?;
+
+    migration::Migrator::up(&db, None).await?;
+
+    let router = crate::handler::create_router(db);
 
     let listen_addr = &crate::config::CONFIG.listen_addr;
     tracing::info!(%listen_addr, "starting http server...");

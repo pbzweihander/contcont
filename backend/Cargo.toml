@@ -1,3 +1,9 @@
+[workspace]
+members = [
+  ".",
+  "migration",
+]
+
 [package]
 name = "contcont"
 version = "0.1.0"
@@ -7,9 +13,14 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.72"
-axum = "0.6.19"
+async-trait = "0.1.71"
+axum = { version = "0.6.19", features = ["headers"] }
 envy = "0.4.2"
+jsonwebtoken = "8.3.0"
+migration = { version = "0.1.0", path = "migration" }
+oauth2 = "4.4.1"
 once_cell = "1.18.0"
+reqwest = { version = "0.11.18", features = ["json"] }
 sea-orm = { version = "0.11.3", default-features = false, features = ["macros", "with-json", "with-rust_decimal", "with-bigdecimal", "with-uuid", "sqlx-sqlite", "runtime-tokio-rustls", "with-time"] }
 serde = { version = "1.0.173", features = ["derive"] }
 time = { version = "0.3.23", features = ["formatting", "macros", "parsing", "serde", "serde-well-known"] }
@@ -17,3 +28,4 @@ tokio = { version = "1.29.1", features = ["rt-multi-thread", "macros", "signal"]
 tower-http = { version = "0.4.2", features = ["fs"] }
 tracing = { version = "0.1.37", features = ["log"] }
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "fmt"] }
+url = { version = "2.4.0", features = ["serde"] }
