@@ -1,7 +1,13 @@
 use axum::{routing, Router};
 
+mod contest;
+
 pub fn create_router() -> Router {
-    Router::new().route("/healthz", routing::get(get_healthz))
+    let contest = contest::create_router();
+
+    Router::new()
+        .route("/healthz", routing::get(get_healthz))
+        .nest("/contest", contest)
 }
 
 async fn get_healthz() -> &'static str {

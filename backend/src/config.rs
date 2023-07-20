@@ -17,6 +17,8 @@ fn default_static_files_directory() -> PathBuf {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Config {
+    pub contest_name: String,
+
     #[serde(default = "default_listen_addr")]
     pub listen_addr: String,
 
