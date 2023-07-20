@@ -1,6 +1,8 @@
 import { AxiosError, AxiosInstance, isAxiosError } from "axios";
 import { UseQueryResult, useQuery } from "react-query";
+
 import { useAxiosClient } from "./AxiosContext";
+import { User } from "./HttpTypes";
 
 async function get<T>(
   client: AxiosInstance,
@@ -28,4 +30,16 @@ export function useContestName(): UseQueryResult<string, AxiosError> {
     const resp = await get<string>(client, "/api/contest/name");
     return resp;
   });
+}
+
+export function useUserFromApi(): UseQueryResult<User, AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(
+    ["user"],
+    async () => {
+      const resp = await get<User>(client, "/api/user");
+      return resp;
+    },
+    { retry: false }
+  );
 }
