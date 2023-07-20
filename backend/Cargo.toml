@@ -6,3 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.72"
+axum = "0.6.19"
+sea-orm = { version = "0.11.3", default-features = false, features = ["macros", "with-json", "with-rust_decimal", "with-bigdecimal", "with-uuid", "sqlx-sqlite", "runtime-tokio-rustls", "with-time"] }
+time = { version = "0.3.23", features = ["formatting", "macros", "parsing", "serde", "serde-well-known"] }
+tokio = { version = "1.29.1", features = ["rt-multi-thread", "macros", "signal"] }
+tracing = { version = "0.1.37", features = ["log"] }
+tracing-subscriber = { version = "0.3.17", features = ["env-filter", "fmt"] }
