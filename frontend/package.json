@@ -9,9 +9,7 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prettier": "prettier --write --config prettier.config.cjs index.html './src/**/*.{js,jsx,ts,tsx,css}'",
-    "prettier:check": "prettier --check --config prettier.config.cjs index.html './src/**/*.{js,jsx,ts,tsx,css}'",
-    "lint": "eslint './src/**/*.{js,jsx,ts,tsx}'",
-    "lint:fix": "eslint --fix './src/**/*.{js,jsx,ts,tsx}'"
+    "prettier:check": "prettier --check --config prettier.config.cjs index.html './src/**/*.{js,jsx,ts,tsx,css}'"
   },
   "dependencies": {
     "react": "^18.2.0",
