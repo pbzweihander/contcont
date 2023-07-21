@@ -62,17 +62,17 @@ pub(super) fn create_router() -> Router<AppState> {
         .route("/redirect", routing::get(get_redirect))
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Deserialize)]
 struct PostAuthorizeReq {
     instance: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Serialize)]
 struct PostAuthorizeResp {
     url: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MisskeyAppCreateReq {
     name: String,
@@ -81,21 +81,35 @@ struct MisskeyAppCreateReq {
     callback_url: Url,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Deserialize)]
 struct MisskeyAppCreateResp {
     id: String,
     secret: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MisskeySessionGenerateReq {
     app_secret: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Deserialize)]
 struct MisskeySessionGenerateResp {
     url: String,
+}
+
+#[derive(Serialize)]
+struct MastodonPostAppReq {
+    client_name: String,
+    redirect_uris: Url,
+    scopes: String,
+    website: Url,
+}
+
+#[derive(Deserialize)]
+struct MastodonPostAppResp {
+    client_id: String,
+    client_secret: String,
 }
 
 async fn post_authorize(
@@ -106,7 +120,7 @@ async fn post_authorize(
         tracing::error!(%err, "failed to parse instance URL");
         (StatusCode::BAD_REQUEST, "failed to parse instance URL")
     })?;
-    let instance_type = detect_instance(instance_url)
+    let instance_type = detect_instance(&state.http_client, instance_url)
         .await
         .map_err(|err| {
             tracing::error!(%err, "failed to detect instance type");
@@ -172,7 +186,8 @@ async fn post_authorize(
                 client_id: ActiveValue::Set(resp.id),
                 client_secret: ActiveValue::Set(resp.secret),
             };
-            let instance = instance_activemodel
+
+            instance_activemodel
                 .insert(&*state.db)
                 .await
                 .map_err(|err| {
@@ -181,9 +196,7 @@ async fn post_authorize(
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to insert to database",
                     )
-                })?;
-
-            instance
+                })?
         };
 
         let resp = state
@@ -234,37 +247,142 @@ async fn post_authorize(
         Ok((header_map, Json(PostAuthorizeResp { url: resp.url })))
     } else {
         // Mastodon
-        if let Some(_instance) = instance {
-            todo!()
+        let instance = if let Some(instance) = instance {
+            instance
         } else {
-            todo!()
-        }
+            let resp = state
+                .http_client
+                .post(format!("https://{}/api/v1/apps", req.instance))
+                .json(&MastodonPostAppReq {
+                    client_name: env!("CARGO_PKG_NAME").to_string(),
+                    redirect_uris: redirect_url.clone(),
+                    scopes: String::new(),
+                    website: CONFIG.base_url.clone(),
+                })
+                .send()
+                .await
+                .map_err(|err| {
+                    tracing::error!(%err, "failed to request to Mastodon instance");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "failed to request to Mastodon instance",
+                    )
+                })?
+                .json::<MastodonPostAppResp>()
+                .await
+                .map_err(|err| {
+                    tracing::error!(%err, "failed to parse Mastodon response");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "failed to parse Mastodon response",
+                    )
+                })?;
+
+            let instance_activemodel = instance::ActiveModel {
+                hostname: ActiveValue::Set(req.instance.clone()),
+                client_id: ActiveValue::Set(resp.client_id),
+                client_secret: ActiveValue::Set(resp.client_secret),
+            };
+
+            instance_activemodel
+                .insert(&*state.db)
+                .await
+                .map_err(|err| {
+                    tracing::error!(%err, "failed to insert to database");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "failed to insert to database",
+                    )
+                })?
+        };
+
+        let login_state = format!(
+            "{}_{}",
+            random_string::generate(64, "abcdefghijklmnopqrstuvwxyz0123456789"),
+            instance.client_id
+        );
+
+        let mut url =
+            Url::parse(&format!("https://{}/oauth/authorize", req.instance)).map_err(|err| {
+                tracing::error!(%err, "failed to parse redirect URL");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to parse redirect URL",
+                )
+            })?;
+        url.query_pairs_mut()
+            .append_pair("client_id", &instance.client_id)
+            .append_pair("scope", "")
+            .append_pair("redirect_uri", redirect_url.as_str())
+            .append_pair("response_type", "code")
+            .append_pair("state", &login_state);
+
+        let mut header_map = HeaderMap::new();
+        header_map.insert(
+            header::SET_COOKIE,
+            format!("LOGIN_SESSION={}; SameSite=Lax; Path=/", login_state)
+                .parse()
+                .map_err(|err| {
+                    tracing::error!(%err, "failed to generate session cookie value");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "failed to generate session cookie value",
+                    )
+                })?,
+        );
+
+        Ok((
+            header_map,
+            Json(PostAuthorizeResp {
+                url: url.to_string(),
+            }),
+        ))
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(untagged)]
 enum GetRedirectQuery {
     Misskey { token: String },
-    Mastodon { state: String },
+    Mastodon { state: String, code: String },
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct MisskeyUserkeyReq {
     app_secret: String,
     token: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Deserialize)]
 struct MisskeyUser {
     username: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct MisskeyUserkeyResp {
     user: MisskeyUser,
+}
+
+#[derive(Serialize)]
+struct MastodonOauthTokenReq {
+    grant_type: String,
+    redirect_uri: Url,
+    client_id: String,
+    client_secret: String,
+    code: String,
+    state: String,
+}
+
+#[derive(Deserialize)]
+struct MastodonOauthTokenResp {
+    access_token: String,
+}
+
+#[derive(Deserialize)]
+struct MastodonVerifyCredentialsResp {
+    username: String,
 }
 
 async fn get_redirect(
@@ -332,13 +450,105 @@ async fn get_redirect(
         }
     } else {
         // Mastodon
-        let _state = if let GetRedirectQuery::Mastodon { state } = query {
-            state
+        let (query_state, code) = if let GetRedirectQuery::Mastodon { state, code } = query {
+            (state, code)
         } else {
             return Err((StatusCode::BAD_REQUEST, "state not found"));
         };
 
-        todo!()
+        if query_state != session {
+            return Err((StatusCode::BAD_REQUEST, "invalid state"));
+        }
+
+        let client_id = if let Some((_, client_id)) = session.split_once('_') {
+            client_id
+        } else {
+            return Err((StatusCode::BAD_REQUEST, "invalid state"));
+        };
+
+        let instance = instance::Entity::find()
+            .filter(instance::Column::ClientId.eq(client_id))
+            .one(&*state.db)
+            .await
+            .map_err(|err| {
+                tracing::error!(%err, "failed to query database");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to query database",
+                )
+            })?
+            .ok_or((StatusCode::NOT_FOUND, "instance not found"))?;
+
+        let resp = state
+            .http_client
+            .post(format!("https://{}/oauth/token", instance.hostname))
+            .json(&MastodonOauthTokenReq {
+                grant_type: "authorization_code".to_string(),
+                redirect_uri: CONFIG.base_url.join("/api/oauth/redirect").map_err(|err| {
+                    tracing::error!(%err, "failed to generate redirect URL");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "failed to generate redirect URL",
+                    )
+                })?,
+                client_id: instance.client_id,
+                client_secret: instance.client_secret,
+                code,
+                state: query_state,
+            })
+            .send()
+            .await
+            .map_err(|err| {
+                tracing::error!(%err, "failed to request to Mastodon instance");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to request to Mastodon instance",
+                )
+            })?
+            .json::<MastodonOauthTokenResp>()
+            .await
+            .map_err(|err| {
+                tracing::error!(%err, "failed to parse Mastodon response");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to parse Mastodon response",
+                )
+            })?;
+
+        let resp = state
+            .http_client
+            .get(format!(
+                "https://{}/api/v1/accounts/verify_credentials",
+                instance.hostname
+            ))
+            .header(
+                header::AUTHORIZATION,
+                format!("Bearer {}", resp.access_token),
+            )
+            .send()
+            .await
+            .map_err(|err| {
+                tracing::error!(%err, "failed to request to Mastodon instance");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to request to Mastodon instance",
+                )
+            })?
+            .json::<MastodonVerifyCredentialsResp>()
+            .await
+            .map_err(|err| {
+                tracing::error!(%err, "failed to parse Mastodon response");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to parse Mastodon response",
+                )
+            })?;
+
+        User {
+            handle: resp.username,
+            instance: instance.hostname,
+            exp: 0,
+        }
     };
 
     let now = OffsetDateTime::now_utc();
