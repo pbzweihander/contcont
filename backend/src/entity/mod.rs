@@ -3,5 +3,7 @@
 pub mod prelude;
 
 pub mod art;
+pub mod art_vote;
 pub mod instance;
 pub mod literature;
+pub mod literature_vote;

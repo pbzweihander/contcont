@@ -41,3 +41,12 @@ export interface PostArtReq {
   title: string;
   file: File;
 }
+
+export interface Vote {
+  voted: boolean;
+  voteCount: number;
+}
+
+export interface PostVoteReq {
+  id: number;
+}

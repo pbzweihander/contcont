@@ -80,7 +80,7 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(Iden)]
-enum Literature {
+pub enum Literature {
     Table,
     Id,
     Title,
@@ -90,7 +90,7 @@ enum Literature {
 }
 
 #[derive(Iden)]
-enum Art {
+pub enum Art {
     Table,
     Id,
     Title,

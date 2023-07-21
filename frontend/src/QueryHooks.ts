@@ -2,7 +2,13 @@ import { AxiosError, AxiosInstance, isAxiosError } from "axios";
 import { UseQueryResult, useQuery } from "react-query";
 
 import { useAxiosClient } from "./AxiosContext";
-import { ArtMetadata, GetOpenedResp, Literature, User } from "./HttpTypes";
+import {
+  ArtMetadata,
+  GetOpenedResp,
+  Literature,
+  User,
+  Vote,
+} from "./HttpTypes";
 
 async function get<T>(
   client: AxiosInstance,
@@ -72,7 +78,7 @@ export function useLiterature(
 export function useLiteratures(): UseQueryResult<Literature[], AxiosError> {
   const client = useAxiosClient();
   return useQuery(["contest/literatures"], async () => {
-    return await get<Literature[]>(client, `/api/contest/literature`);
+    return await get<Literature[]>(client, "/api/contest/literature");
   });
 }
 
@@ -85,10 +91,35 @@ export function useArtMetadata(
   });
 }
 
-export function useArtMetadatas(
-): UseQueryResult<ArtMetadata[], AxiosError> {
+export function useArtMetadatas(): UseQueryResult<ArtMetadata[], AxiosError> {
   const client = useAxiosClient();
   return useQuery(["contest/art/metadatas"], async () => {
-    return await get<ArtMetadata[]>(client, `/api/contest/art/metadata`);
+    return await get<ArtMetadata[]>(client, "/api/contest/art/metadata");
+  });
+}
+
+export function useLiteratureVote(
+  user: User | undefined,
+  id: number
+): UseQueryResult<Vote, AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contestt/voting/literature", user, id], async () => {
+    if (user == null) {
+      return undefined;
+    }
+    return await get<Vote>(client, `/api/contest/voting/literature/${id}`);
+  });
+}
+
+export function useArtVote(
+  user: User | undefined,
+  id: number
+): UseQueryResult<Vote, AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contestt/voting/art", user, id], async () => {
+    if (user == null) {
+      return undefined;
+    }
+    return await get<Vote>(client, `/api/contest/voting/art/${id}`);
   });
 }

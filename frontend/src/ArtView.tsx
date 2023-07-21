@@ -1,16 +1,43 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useParams } from "react-router-dom";
 
-import { useArtMetadata, useContestName } from "./QueryHooks";
+import { usePostArtVoteMutation } from "./MutationHooks";
+import {
+  useArtMetadata,
+  useArtVote,
+  useContestName,
+  useUserFromApi,
+} from "./QueryHooks";
 
 export default function ArtView() {
   const { id } = useParams();
   const { data: contestName } = useContestName();
   const { data: art, isLoading } = useArtMetadata(Number(id));
 
+  const { data: user } = useUserFromApi();
+  const { data: vote, refetch: refetchVote } = useArtVote(user, Number(id));
+
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+
+  const { mutate: postVote, isLoading: isVoting } = usePostArtVoteMutation({
+    onSuccess: () => {
+      refetchVote();
+      setSuccess("투표했습니다.");
+    },
+    onError: (error) => {
+      setError((error.response?.data as string) ?? error.message);
+    },
+  });
+
   if (isLoading || art == null) {
     return <span className="loading loading-spinner loading-lg" />;
   }
+
+  const onVote = () => {
+    postVote({ id: Number(id) });
+  };
 
   return (
     <>
@@ -27,9 +54,52 @@ export default function ArtView() {
               {art.authorHandle}@{art.authorInstance}
             </Link>
           </h2>
-          <img src={`/api/contest/art/${art.id}`} alt={art.title} />
+          <img
+            src={`/api/contest/art/${art.id}`}
+            alt={art.title}
+            className="mb-4"
+          />
+          {user != null ? (
+            <div>
+              <button
+                className="btn btn-primary mr-4"
+                disabled={
+                  isVoting ||
+                  vote?.voted ||
+                  (art.authorHandle === user.handle &&
+                    art.authorInstance === user.instance)
+                }
+                onClick={onVote}
+              >
+                투표하기
+              </button>
+              <span>현재 자신의 투표 수: {vote?.voteCount} / 5</span>
+            </div>
+          ) : (
+            <div>
+              투표는{" "}
+              <Link to="/login" className="text-blue-600 underline">
+                로그인
+              </Link>{" "}
+              후에 가능합니다.
+            </div>
+          )}
         </div>
       </div>
+      {(success !== "" || error !== "") && (
+        <div className="toast">
+          {success !== "" && (
+            <div className="alert alert-success">
+              <span>{success}</span>
+            </div>
+          )}
+          {error !== "" && (
+            <div className="alert alert-error">
+              <span>{error}</span>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }

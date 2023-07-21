@@ -13,6 +13,7 @@ import {
   PostLiteratureReq,
   PostOauthAuthorizeReq,
   PostOauthAuthorizeResp,
+  PostVoteReq,
 } from "./HttpTypes";
 
 type MutationRet<T, Ret = void> = UseMutationResult<
@@ -65,5 +66,23 @@ export function usePostArtMutation(
       }
     );
     return resp.data;
+  }, options);
+}
+
+export function usePostLiteratureVoteMutation(
+  options?: MutationOption<PostVoteReq, void>
+): MutationRet<PostVoteReq, void> {
+  const client = useAxiosClient();
+  return useMutation(async (payload: PostVoteReq) => {
+    await client.post(`/api/contest/voting/literature/${payload.id}`);
+  }, options);
+}
+
+export function usePostArtVoteMutation(
+  options?: MutationOption<PostVoteReq, void>
+): MutationRet<PostVoteReq, void> {
+  const client = useAxiosClient();
+  return useMutation(async (payload: PostVoteReq) => {
+    await client.post(`/api/contest/voting/art/${payload.id}`);
   }, options);
 }

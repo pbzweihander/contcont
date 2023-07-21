@@ -7,7 +7,9 @@ use axum::{
     routing, Json, RequestPartsExt, Router, TypedHeader,
 };
 use jsonwebtoken::Validation;
-use sea_orm::{ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait,
+};
 use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
 use url::Url;
@@ -139,8 +141,16 @@ async fn post_authorize(
         )
     })?;
 
+    let tx = state.db.begin().await.map_err(|err| {
+        tracing::error!(%err, "failed to begin transaction");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to begin transaction",
+        )
+    })?;
+
     let instance = instance::Entity::find_by_id(&req.instance)
-        .one(&*state.db)
+        .one(&tx)
         .await
         .map_err(|err| {
             tracing::error!(%err, "failed to query database");
@@ -187,17 +197,22 @@ async fn post_authorize(
                 client_secret: ActiveValue::Set(resp.secret),
             };
 
-            instance_activemodel
-                .insert(&*state.db)
-                .await
-                .map_err(|err| {
-                    tracing::error!(%err, "failed to insert to database");
-                    (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        "failed to insert to database",
-                    )
-                })?
+            instance_activemodel.insert(&tx).await.map_err(|err| {
+                tracing::error!(%err, "failed to insert to database");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to insert to database",
+                )
+            })?
         };
+
+        tx.commit().await.map_err(|err| {
+            tracing::error!(%err, "failed to commit to database");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "failed to commit to database",
+            )
+        })?;
 
         let resp = state
             .http_client
@@ -284,17 +299,22 @@ async fn post_authorize(
                 client_secret: ActiveValue::Set(resp.client_secret),
             };
 
-            instance_activemodel
-                .insert(&*state.db)
-                .await
-                .map_err(|err| {
-                    tracing::error!(%err, "failed to insert to database");
-                    (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        "failed to insert to database",
-                    )
-                })?
+            instance_activemodel.insert(&tx).await.map_err(|err| {
+                tracing::error!(%err, "failed to insert to database");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to insert to database",
+                )
+            })?
         };
+
+        tx.commit().await.map_err(|err| {
+            tracing::error!(%err, "failed to commit to database");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "failed to commit to database",
+            )
+        })?;
 
         let login_state = format!(
             "{}_{}",

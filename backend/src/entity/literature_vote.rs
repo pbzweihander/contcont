@@ -4,29 +4,31 @@ use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "art")]
+#[sea_orm(table_name = "literature_vote")]
 #[serde(rename_all = "camelCase")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
-    pub title: String,
-    #[sea_orm(column_type = "Binary(BlobSize::Blob(None))")]
-    pub data: Vec<u8>,
-    #[sea_orm(column_type = "Binary(BlobSize::Blob(None))")]
-    pub thumbnail_data: Vec<u8>,
-    pub author_handle: String,
-    pub author_instance: String,
+    pub handle: String,
+    pub instance: String,
+    pub literature_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::art_vote::Entity")]
-    ArtVote,
+    #[sea_orm(
+        belongs_to = "super::literature::Entity",
+        from = "Column::LiteratureId",
+        to = "super::literature::Column::Id",
+        on_update = "Cascade",
+        on_delete = "Cascade"
+    )]
+    Literature,
 }
 
-impl Related<super::art_vote::Entity> for Entity {
+impl Related<super::literature::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::ArtVote.def()
+        Relation::Literature.def()
     }
 }
 

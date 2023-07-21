@@ -1,7 +1,10 @@
 use std::io::Cursor;
 
 use axum::{body::Bytes, extract, http::StatusCode, routing, Json, Router};
-use sea_orm::{ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter,
+    TransactionTrait,
+};
 use serde::Deserialize;
 use thumbnailer::{create_thumbnails, ThumbnailSize};
 use time::OffsetDateTime;
@@ -52,13 +55,21 @@ async fn post_literature(
         return Err((StatusCode::BAD_REQUEST, "submission not available"));
     }
 
+    let tx = state.db.begin().await.map_err(|err| {
+        tracing::error!(%err, "failed to begin transaction");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to begin transaction",
+        )
+    })?;
+
     let existing_literature = literature::Entity::find()
         .filter(
             literature::Column::AuthorHandle
                 .eq(&user.handle)
                 .and(literature::Column::AuthorInstance.eq(&user.instance)),
         )
-        .one(&*state.db)
+        .count(&tx)
         .await
         .map_err(|err| {
             tracing::error!(%err, "failed to query database");
@@ -67,7 +78,7 @@ async fn post_literature(
                 "failed to query database",
             )
         })?;
-    if existing_literature.is_some() {
+    if existing_literature > 0 {
         return Err((StatusCode::CONFLICT, "already submitted user"));
     }
 
@@ -79,16 +90,21 @@ async fn post_literature(
         author_instance: ActiveValue::Set(user.instance),
     };
 
-    let literature = literature_activemodel
-        .insert(&*state.db)
-        .await
-        .map_err(|err| {
-            tracing::error!(%err, "failed to insert to database");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "failed to insert to database",
-            )
-        })?;
+    let literature = literature_activemodel.insert(&tx).await.map_err(|err| {
+        tracing::error!(%err, "failed to insert to database");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to insert to database",
+        )
+    })?;
+
+    tx.commit().await.map_err(|err| {
+        tracing::error!(%err, "failed to commit to database");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to commit to database",
+        )
+    })?;
 
     Ok(Json(literature))
 }
@@ -113,13 +129,21 @@ async fn post_art(
         return Err((StatusCode::BAD_REQUEST, "submission not available"));
     }
 
+    let tx = state.db.begin().await.map_err(|err| {
+        tracing::error!(%err, "failed to begin transaction");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to begin transaction",
+        )
+    })?;
+
     let existing_art = art::Entity::find()
         .filter(
             art::Column::AuthorHandle
                 .eq(&user.handle)
                 .and(art::Column::AuthorInstance.eq(&user.instance)),
         )
-        .one(&*state.db)
+        .count(&tx)
         .await
         .map_err(|err| {
             tracing::error!(%err, "failed to query database");
@@ -128,7 +152,7 @@ async fn post_art(
                 "failed to query database",
             )
         })?;
-    if existing_art.is_some() {
+    if existing_art > 0 {
         return Err((StatusCode::CONFLICT, "already submitted user"));
     }
 
@@ -164,11 +188,19 @@ async fn post_art(
         author_instance: ActiveValue::Set(user.instance),
     };
 
-    let art = art_activemodel.insert(&*state.db).await.map_err(|err| {
+    let art = art_activemodel.insert(&tx).await.map_err(|err| {
         tracing::error!(%err, "failed to insert to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to insert to database",
+        )
+    })?;
+
+    tx.commit().await.map_err(|err| {
+        tracing::error!(%err, "failed to commit to database");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to commit to database",
         )
     })?;
 
