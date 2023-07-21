@@ -49,7 +49,7 @@ export default function NavBar() {
           </div>
           {user != null ? (
             <span>
-              {user.handle}@{user.instance}`
+              {user.handle}@{user.instance}
             </span>
           ) : (
             <Link to="/login" className="btn">
