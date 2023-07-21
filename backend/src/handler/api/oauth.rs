@@ -143,8 +143,8 @@ async fn post_authorize(
                 .http_client
                 .post(format!("https://{}/api/app/create", req.instance))
                 .json(&MisskeyAppCreateReq {
-                    name: format!("{}/{}", env!("CARGO_PKG_NAME"), CONFIG.contest_name),
-                    description: "contcont, contest controller".to_string(),
+                    name: env!("CARGO_PKG_NAME").to_string(),
+                    description: "contest controller".to_string(),
                     permission: Vec::new(),
                     callback_url: redirect_url,
                 })
