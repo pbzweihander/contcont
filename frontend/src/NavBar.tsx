@@ -1,10 +1,18 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 
 import { useContestName, useUserFromApi } from "./QueryHooks";
 
 export default function NavBar() {
+  const navigate = useNavigate();
+
   const { data: contestName } = useContestName();
-  const { data: user } = useUserFromApi();
+  const { data: user, remove: removeUser } = useUserFromApi();
+
+  const onLogout = () => {
+    document.cookie = "SESSION=; Max-Age=-99999999;";
+    removeUser();
+    navigate("/");
+  };
 
   return (
     <>
@@ -48,9 +56,14 @@ export default function NavBar() {
             </ul>
           </div>
           {user != null ? (
-            <span>
-              {user.handle}@{user.instance}
-            </span>
+            <>
+              <span className="mr-2">
+                {user.handle}@{user.instance}
+              </span>
+              <button className="btn" onClick={onLogout}>
+                로그아웃
+              </button>
+            </>
           ) : (
             <Link to="/login" className="btn">
               로그인
