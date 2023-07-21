@@ -2,4 +2,6 @@
 
 pub mod prelude;
 
+pub mod art;
 pub mod instance;
+pub mod literature;

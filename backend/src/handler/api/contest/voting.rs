@@ -11,7 +11,7 @@ pub(super) fn create_router() -> Router<AppState> {
 
 async fn get_opened() -> Json<GetOpenedResp> {
     let now = OffsetDateTime::now_utc();
-    let opened = now > CONFIG.voting_open_at && now < CONFIG.voting_close_at;
+    let opened = now >= CONFIG.voting_open_at && now <= CONFIG.voting_close_at;
     Json(GetOpenedResp {
         opened,
         open_at: CONFIG.voting_open_at,

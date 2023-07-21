@@ -41,6 +41,7 @@ export default function LoginView() {
                 type="text"
                 className="input input-bordered w-full"
                 placeholder="twingyeo.kr"
+                value={instance}
                 onChange={(e) => {
                   setInstance(e.target.value);
                 }}

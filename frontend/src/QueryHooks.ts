@@ -2,7 +2,7 @@ import { AxiosError, AxiosInstance, isAxiosError } from "axios";
 import { UseQueryResult, useQuery } from "react-query";
 
 import { useAxiosClient } from "./AxiosContext";
-import { GetOpenedResp, User } from "./HttpTypes";
+import { GetOpenedResp, Literature, User } from "./HttpTypes";
 
 async function get<T>(
   client: AxiosInstance,
@@ -49,10 +49,7 @@ export function useSubmissionOpened(): UseQueryResult<
 > {
   const client = useAxiosClient();
   return useQuery(["contest/submission/opened"], async () => {
-    return await get<GetOpenedResp>(
-      client,
-      "/api/contest/submission/opened"
-    );
+    return await get<GetOpenedResp>(client, "/api/contest/submission/opened");
   });
 }
 
@@ -60,5 +57,14 @@ export function useVotingOpened(): UseQueryResult<GetOpenedResp, AxiosError> {
   const client = useAxiosClient();
   return useQuery(["contest/voting/opened"], async () => {
     return await get<GetOpenedResp>(client, "/api/contest/voting/opened");
+  });
+}
+
+export function useLiterature(
+  id: number
+): UseQueryResult<Literature, AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contest/literature", id], async () => {
+    return await get<Literature>(client, `/api/contest/literature/${id}`);
   });
 }

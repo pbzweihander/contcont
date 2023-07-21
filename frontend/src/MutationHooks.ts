@@ -6,7 +6,14 @@ import {
 } from "react-query";
 
 import { useAxiosClient } from "./AxiosContext";
-import { PostOauthAuthorizeReq, PostOauthAuthorizeResp } from "./HttpTypes";
+import {
+  Art,
+  Literature,
+  PostArtReq,
+  PostLiteratureReq,
+  PostOauthAuthorizeReq,
+  PostOauthAuthorizeResp,
+} from "./HttpTypes";
 
 type MutationRet<T, Ret = void> = UseMutationResult<
   Ret,
@@ -25,8 +32,37 @@ export function useOauthAuthorizeMutation(
   const client = useAxiosClient();
   return useMutation(async (payload: PostOauthAuthorizeReq) => {
     const resp = await client.post<PostOauthAuthorizeResp>(
-      `/api/oauth/authorize`,
+      "/api/oauth/authorize",
       payload
+    );
+    return resp.data;
+  }, options);
+}
+
+export function usePostLiteratureMutation(
+  options?: MutationOption<PostLiteratureReq, Literature>
+): MutationRet<PostLiteratureReq, Literature> {
+  const client = useAxiosClient();
+  return useMutation(async (payload: PostLiteratureReq) => {
+    const resp = await client.post<Literature>(
+      "/api/contest/submission/literature",
+      payload
+    );
+    return resp.data;
+  }, options);
+}
+
+export function usePostArtMutation(
+  options?: MutationOption<PostArtReq, Art>
+): MutationRet<PostArtReq, Art> {
+  const client = useAxiosClient();
+  return useMutation(async (payload: PostArtReq) => {
+    const resp = await client.post(
+      "/api/contest/submission/art",
+      payload.data,
+      {
+        params: { title: payload.title },
+      }
     );
     return resp.data;
   }, options);

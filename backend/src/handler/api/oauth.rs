@@ -16,8 +16,8 @@ use crate::{config::CONFIG, entity::instance, handler::AppState, utils::detect_i
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct User {
-    handle: String,
-    instance: String,
+    pub handle: String,
+    pub instance: String,
     exp: i64,
 }
 
