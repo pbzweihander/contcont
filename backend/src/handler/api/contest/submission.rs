@@ -1,7 +1,11 @@
+use std::io::Cursor;
+
 use axum::{body::Bytes, extract, http::StatusCode, routing, Json, Router};
 use sea_orm::{ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, QueryFilter};
 use serde::Deserialize;
+use thumbnailer::{create_thumbnails, ThumbnailSize};
 use time::OffsetDateTime;
+use unicode_segmentation::UnicodeSegmentation;
 
 use crate::{
     config::CONFIG,
@@ -9,7 +13,7 @@ use crate::{
     handler::{api::oauth::User, AppState},
 };
 
-use super::GetOpenedResp;
+use super::{ArtMetadata, GetOpenedResp};
 
 pub(super) fn create_router() -> Router<AppState> {
     Router::new()
@@ -39,7 +43,7 @@ async fn post_literature(
     extract::State(state): extract::State<AppState>,
     Json(req): Json<PostLiteratureReq>,
 ) -> Result<Json<literature::Model>, (StatusCode, &'static str)> {
-    if req.title.len() > 100 || req.text.len() > 5000 {
+    if req.title.graphemes(true).count() > 100 || req.text.graphemes(true).count() > 7000 {
         return Err((StatusCode::BAD_REQUEST, "too long text"));
     }
 
@@ -99,7 +103,7 @@ async fn post_art(
     extract::State(state): extract::State<AppState>,
     extract::Query(query): extract::Query<PostArtQuery>,
     req: Bytes,
-) -> Result<Json<art::Model>, (StatusCode, &'static str)> {
+) -> Result<Json<ArtMetadata>, (StatusCode, &'static str)> {
     if req.len() > 1000 * 1000 * 10 {
         return Err((StatusCode::BAD_REQUEST, "too big data"));
     }
@@ -128,10 +132,34 @@ async fn post_art(
         return Err((StatusCode::CONFLICT, "already submitted user"));
     }
 
+    let mut thumbnails = create_thumbnails(
+        Cursor::new(req.to_vec()),
+        mime::IMAGE_PNG,
+        [ThumbnailSize::Medium],
+    )
+    .map_err(|err| {
+        tracing::error!(%err, "failed to generate thumbnail");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to generate thumbnail",
+        )
+    })?;
+    let thumbnail = thumbnails.pop().unwrap();
+
+    let mut thumbnail_data = Cursor::new(Vec::new());
+    thumbnail.write_png(&mut thumbnail_data).map_err(|err| {
+        tracing::error!(%err, "failed to write thumbnail data");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to write thumbnail data",
+        )
+    })?;
+
     let art_activemodel = art::ActiveModel {
         id: ActiveValue::NotSet,
         title: ActiveValue::Set(query.title),
         data: ActiveValue::Set(req.to_vec()),
+        thumbnail_data: ActiveValue::Set(thumbnail_data.into_inner()),
         author_handle: ActiveValue::Set(user.handle),
         author_instance: ActiveValue::Set(user.instance),
     };
@@ -144,5 +172,10 @@ async fn post_art(
         )
     })?;
 
-    Ok(Json(art))
+    Ok(Json(ArtMetadata {
+        id: art.id,
+        title: art.title,
+        author_handle: art.author_handle,
+        author_instance: art.author_instance,
+    }))
 }

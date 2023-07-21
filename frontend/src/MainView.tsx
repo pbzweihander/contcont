@@ -22,8 +22,8 @@ export default function MainView() {
             </Link>
           </li>
           <li>
-            <Link to="/literature/vote" className="text-lg">
-              투표
+            <Link to="/literature" className="text-lg">
+              감상 / 투표
             </Link>
           </li>
         </ul>
@@ -37,8 +37,8 @@ export default function MainView() {
             </Link>
           </li>
           <li>
-            <Link to="/art/vote" className="text-lg">
-              투표
+            <Link to="/art" className="text-lg">
+              감상 / 투표
             </Link>
           </li>
         </ul>

@@ -25,7 +25,7 @@ export interface Literature {
   authorInstance: string;
 }
 
-export interface Art {
+export interface ArtMetadata {
   id: number;
   title: string;
   authorHandle: string;
@@ -39,5 +39,5 @@ export interface PostLiteratureReq {
 
 export interface PostArtReq {
   title: string;
-  data: File;
+  file: File;
 }

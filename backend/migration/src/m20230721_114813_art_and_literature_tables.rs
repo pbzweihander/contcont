@@ -50,6 +50,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Art::Title).string().not_null())
                     .col(ColumnDef::new(Art::Data).binary().not_null())
+                    .col(ColumnDef::new(Art::ThumbnailData).binary().not_null())
                     .col(ColumnDef::new(Art::AuthorHandle).string().not_null())
                     .col(ColumnDef::new(Art::AuthorInstance).string().not_null())
                     .index(
@@ -94,6 +95,7 @@ enum Art {
     Id,
     Title,
     Data,
+    ThumbnailData,
     AuthorHandle,
     AuthorInstance,
 }

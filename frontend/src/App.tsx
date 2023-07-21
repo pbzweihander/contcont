@@ -1,15 +1,15 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
+import ArtListView from "./ArtListView";
 import ArtSubmitView from "./ArtSubmitView";
-import ArtVoteView from "./ArtVoteView";
+import ArtView from "./ArtView";
 import { AuthRequired } from "./Auth";
 import { createClient } from "./Axios";
 import { AxiosClientProvider } from "./AxiosContext";
 import LiteratureListView from "./LiteratureListView";
 import LiteratureSubmitView from "./LiteratureSubmitView";
 import LiteratureView from "./LiteratureView";
-import LiteratureVoteView from "./LiteratureVoteView";
 import LoginView from "./LoginView";
 import MainView from "./MainView";
 import NavBar from "./NavBar";
@@ -37,16 +37,9 @@ function App() {
                   </AuthRequired>
                 }
               />
-              <Route
-                path="/literature/vote"
-                element={
-                  <AuthRequired>
-                    <LiteratureVoteView />
-                  </AuthRequired>
-                }
-              />
               <Route path="/literature/:id" element={<LiteratureView />} />
 
+              <Route path="/art" element={<ArtListView />} />
               <Route
                 path="/art/submit"
                 element={
@@ -55,14 +48,7 @@ function App() {
                   </AuthRequired>
                 }
               />
-              <Route
-                path="/art/vote"
-                element={
-                  <AuthRequired>
-                    <ArtVoteView />
-                  </AuthRequired>
-                }
-              />
+              <Route path="/art/:id" element={<ArtView />} />
             </Route>
           </Routes>
         </BrowserRouter>

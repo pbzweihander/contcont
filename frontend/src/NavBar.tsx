@@ -35,7 +35,7 @@ export default function NavBar() {
                 <Link to="/literature/submit">출품</Link>
               </li>
               <li>
-                <Link to="/literature/vote">투표</Link>
+                <Link to="/literature">감상 / 투표</Link>
               </li>
             </ul>
           </div>
@@ -51,7 +51,7 @@ export default function NavBar() {
                 <Link to="/art/submit">출품</Link>
               </li>
               <li>
-                <Link to="/art/vote">투표</Link>
+                <Link to="/art">감상 / 투표</Link>
               </li>
             </ul>
           </div>

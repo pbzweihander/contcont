@@ -7,7 +7,7 @@ import {
 
 import { useAxiosClient } from "./AxiosContext";
 import {
-  Art,
+  ArtMetadata,
   Literature,
   PostArtReq,
   PostLiteratureReq,
@@ -53,13 +53,13 @@ export function usePostLiteratureMutation(
 }
 
 export function usePostArtMutation(
-  options?: MutationOption<PostArtReq, Art>
-): MutationRet<PostArtReq, Art> {
+  options?: MutationOption<PostArtReq, ArtMetadata>
+): MutationRet<PostArtReq, ArtMetadata> {
   const client = useAxiosClient();
   return useMutation(async (payload: PostArtReq) => {
     const resp = await client.post(
       "/api/contest/submission/art",
-      payload.data,
+      payload.file,
       {
         params: { title: payload.title },
       }

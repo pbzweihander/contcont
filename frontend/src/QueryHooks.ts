@@ -2,7 +2,7 @@ import { AxiosError, AxiosInstance, isAxiosError } from "axios";
 import { UseQueryResult, useQuery } from "react-query";
 
 import { useAxiosClient } from "./AxiosContext";
-import { GetOpenedResp, Literature, User } from "./HttpTypes";
+import { ArtMetadata, GetOpenedResp, Literature, User } from "./HttpTypes";
 
 async function get<T>(
   client: AxiosInstance,
@@ -73,5 +73,22 @@ export function useLiteratures(): UseQueryResult<Literature[], AxiosError> {
   const client = useAxiosClient();
   return useQuery(["contest/literatures"], async () => {
     return await get<Literature[]>(client, `/api/contest/literature`);
+  });
+}
+
+export function useArtMetadata(
+  id: number
+): UseQueryResult<ArtMetadata, AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contest/art/metadata", id], async () => {
+    return await get<ArtMetadata>(client, `/api/contest/art/metadata/${id}`);
+  });
+}
+
+export function useArtMetadatas(
+): UseQueryResult<ArtMetadata[], AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contest/art/metadatas"], async () => {
+    return await get<ArtMetadata[]>(client, `/api/contest/art/metadata`);
   });
 }

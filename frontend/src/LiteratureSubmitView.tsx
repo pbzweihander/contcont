@@ -41,7 +41,7 @@ export default function LiteratureSubmitView() {
   }
 
   const isInvalid =
-    title == "" || text == "" || title.length > 100 || text.length > 5000;
+    title === "" || text === "" || title.length > 100 || text.length > 7000;
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,7 +77,7 @@ export default function LiteratureSubmitView() {
           <div className="mb-2">
             <label className="label">
               <label className="label-text">내용</label>
-              <label className="label-text-alt">{text.length} / 5000</label>
+              <label className="label-text-alt">{text.length} / 7000</label>
             </label>
             <textarea
               className="textarea textarea-bordered h-[500px] w-full"

@@ -35,7 +35,9 @@ pub(super) fn create_router() -> Router<AppState> {
         .route("/literature", routing::get(get_literature_list))
         .route("/literature/:id", routing::get(get_literature))
         .route("/art/:id", routing::get(get_art))
-        .route("/art/title/:id", routing::get(get_art_title))
+        .route("/art/thumbnail/:id", routing::get(get_art_thumbnail))
+        .route("/art/metadata", routing::get(get_art_metadata_list))
+        .route("/art/metadata/:id", routing::get(get_art_metadata))
         .nest("/submission", submission)
         .nest("/voting", voting)
 }
@@ -107,10 +109,10 @@ async fn get_art(
     Ok(Bytes::from(art.data))
 }
 
-async fn get_art_title(
+async fn get_art_thumbnail(
     extract::Path(id): extract::Path<i32>,
     extract::State(state): extract::State<AppState>,
-) -> Result<String, (StatusCode, &'static str)> {
+) -> Result<Bytes, (StatusCode, &'static str)> {
     let art = art::Entity::find_by_id(id)
         .one(&*state.db)
         .await
@@ -123,5 +125,73 @@ async fn get_art_title(
         })?
         .ok_or((StatusCode::NOT_FOUND, "art not found"))?;
 
-    Ok(art.title)
+    Ok(Bytes::from(art.thumbnail_data))
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ArtMetadata {
+    id: i32,
+    title: String,
+    author_handle: String,
+    author_instance: String,
+}
+
+async fn get_art_metadata_list(
+    user: Option<User>,
+    extract::State(state): extract::State<AppState>,
+) -> Result<Json<Vec<ArtMetadata>>, (StatusCode, &'static str)> {
+    let arts = art::Entity::find()
+        .order_by_desc(art::Column::Id)
+        .all(&*state.db)
+        .await
+        .map_err(|err| {
+            tracing::error!(%err, "failed to query database");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "failed to query database",
+            )
+        })?;
+
+    let mut art_metadatas = arts
+        .into_iter()
+        .map(|art| ArtMetadata {
+            id: art.id,
+            title: art.title,
+            author_handle: art.author_handle,
+            author_instance: art.author_instance,
+        })
+        .collect::<Vec<_>>();
+
+    if let Some(user) = user {
+        let mut rng: StdRng =
+            Seeder::from(&format!("{}@{}", user.handle, user.instance)).make_rng();
+        art_metadatas.shuffle(&mut rng);
+    }
+
+    Ok(Json(art_metadatas))
+}
+
+async fn get_art_metadata(
+    extract::Path(id): extract::Path<i32>,
+    extract::State(state): extract::State<AppState>,
+) -> Result<Json<ArtMetadata>, (StatusCode, &'static str)> {
+    let art = art::Entity::find_by_id(id)
+        .one(&*state.db)
+        .await
+        .map_err(|err| {
+            tracing::error!(%err, "failed to query database");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "failed to query database",
+            )
+        })?
+        .ok_or((StatusCode::NOT_FOUND, "art not found"))?;
+
+    Ok(Json(ArtMetadata {
+        id: art.id,
+        title: art.title,
+        author_handle: art.author_handle,
+        author_instance: art.author_instance,
+    }))
 }
