@@ -10,3 +10,9 @@ export interface PostOauthAuthorizeReq {
 export interface PostOauthAuthorizeResp {
   url: string;
 }
+
+export interface GetOpenedResp {
+  opened: boolean;
+  openAt: string;
+  closeAt: string;
+}

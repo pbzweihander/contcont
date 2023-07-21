@@ -2,7 +2,7 @@ import { AxiosError, AxiosInstance, isAxiosError } from "axios";
 import { UseQueryResult, useQuery } from "react-query";
 
 import { useAxiosClient } from "./AxiosContext";
-import { User } from "./HttpTypes";
+import { GetOpenedResp, User } from "./HttpTypes";
 
 async function get<T>(
   client: AxiosInstance,
@@ -37,9 +37,28 @@ export function useUserFromApi(): UseQueryResult<User, AxiosError> {
   return useQuery(
     ["user"],
     async () => {
-      const resp = await get<User>(client, "/api/user");
-      return resp;
+      return await get<User>(client, "/api/user");
     },
     { retry: false }
   );
+}
+
+export function useSubmissionOpened(): UseQueryResult<
+  GetOpenedResp,
+  AxiosError
+> {
+  const client = useAxiosClient();
+  return useQuery(["contest/submission/opened"], async () => {
+    return await get<GetOpenedResp>(
+      client,
+      "/api/contest/submission/opened"
+    );
+  });
+}
+
+export function useVotingOpened(): UseQueryResult<GetOpenedResp, AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contest/voting/opened"], async () => {
+    return await get<GetOpenedResp>(client, "/api/contest/voting/opened");
+  });
 }

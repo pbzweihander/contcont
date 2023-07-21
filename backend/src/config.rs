@@ -4,6 +4,7 @@ use anyhow::Result;
 use jsonwebtoken::{DecodingKey, EncodingKey};
 use once_cell::sync::Lazy;
 use serde::Deserialize;
+use time::OffsetDateTime;
 use url::Url;
 
 pub static CONFIG: Lazy<Config> =
@@ -48,6 +49,15 @@ pub struct Config {
 
     #[serde(deserialize_with = "deserialize_jwt_secret")]
     pub jwt_secret: (EncodingKey, DecodingKey),
+
+    #[serde(with = "time::serde::rfc3339")]
+    pub submission_open_at: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
+    pub submission_close_at: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
+    pub voting_open_at: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
+    pub voting_close_at: OffsetDateTime,
 }
 
 impl Config {
