@@ -167,7 +167,7 @@ async fn post_authorize(
                 .http_client
                 .post(format!("https://{}/api/app/create", req.instance))
                 .json(&MisskeyAppCreateReq {
-                    name: env!("CARGO_PKG_NAME").to_string(),
+                    name: format!("{}/{}", env!("CARGO_PKG_NAME"), CONFIG.contest_name),
                     description: "contest controller".to_string(),
                     permission: Vec::new(),
                     callback_url: redirect_url,
@@ -269,7 +269,7 @@ async fn post_authorize(
                 .http_client
                 .post(format!("https://{}/api/v1/apps", req.instance))
                 .json(&MastodonPostAppReq {
-                    client_name: env!("CARGO_PKG_NAME").to_string(),
+                    client_name: format!("{}/{}", env!("CARGO_PKG_NAME"), CONFIG.contest_name),
                     redirect_uris: redirect_url.clone(),
                     scopes: String::new(),
                     website: CONFIG.base_url.clone(),
