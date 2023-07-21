@@ -1,12 +1,9 @@
 import { isAxiosError } from "axios";
-import { createContext, ReactNode, useContext } from "react";
+import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 
-import { User } from "./HttpTypes";
+import { UserContext } from "./Auth";
 import { useUserFromApi } from "./QueryHooks";
-
-const UserContext = createContext<User>(undefined!);
-export const useUser = (): User => useContext(UserContext);
 
 export function AuthRequired({ children }: { children: ReactNode }) {
   const { data: user, isLoading, error } = useUserFromApi();

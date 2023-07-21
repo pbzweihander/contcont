@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ArtListView from "./ArtListView";
 import ArtSubmitView from "./ArtSubmitView";
 import ArtView from "./ArtView";
-import { AuthRequired } from "./Auth";
+import { AuthRequired } from "./AuthRequired";
 import { createClient } from "./Axios";
 import { AxiosClientProvider } from "./AxiosContext";
 import LiteratureListView from "./LiteratureListView";

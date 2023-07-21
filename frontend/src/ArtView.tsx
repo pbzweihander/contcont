@@ -23,8 +23,8 @@ export default function ArtView() {
   const [error, setError] = useState("");
 
   const { mutate: postVote, isLoading: isVoting } = usePostArtVoteMutation({
-    onSuccess: () => {
-      refetchVote();
+    onSuccess: async () => {
+      await refetchVote();
       setSuccess("투표했습니다.");
     },
     onError: (error) => {
@@ -68,8 +68,8 @@ export default function ArtView() {
                   disabled={
                     isVoting ||
                     vote?.voted ||
-                    (literature.authorHandle === user.handle &&
-                      literature.authorInstance === user.instance)
+                    (art.authorHandle === user.handle &&
+                      art.authorInstance === user.instance)
                   }
                   onClick={onVote}
                 >

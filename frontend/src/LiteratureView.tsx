@@ -27,8 +27,8 @@ export default function LiteratureView() {
 
   const { mutate: postVote, isLoading: isVoting } =
     usePostLiteratureVoteMutation({
-      onSuccess: () => {
-        refetchVote();
+      onSuccess: async () => {
+        await refetchVote();
         setSuccess("투표했습니다.");
       },
       onError: (error) => {
