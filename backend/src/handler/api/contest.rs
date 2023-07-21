@@ -1,5 +1,7 @@
 use axum::{body::Bytes, extract, http::StatusCode, routing, Json, Router};
-use sea_orm::EntityTrait;
+use rand::{rngs::StdRng, seq::SliceRandom};
+use rand_seeder::Seeder;
+use sea_orm::{EntityTrait, QueryOrder};
 use serde::Serialize;
 use time::OffsetDateTime;
 
@@ -8,6 +10,8 @@ use crate::{
     entity::{art, literature},
     handler::AppState,
 };
+
+use super::oauth::User;
 
 mod submission;
 mod voting;
@@ -28,6 +32,7 @@ pub(super) fn create_router() -> Router<AppState> {
 
     Router::new()
         .route("/name", routing::get(get_name))
+        .route("/literature", routing::get(get_literature_list))
         .route("/literature/:id", routing::get(get_literature))
         .route("/art/:id", routing::get(get_art))
         .route("/art/title/:id", routing::get(get_art_title))
@@ -37,6 +42,31 @@ pub(super) fn create_router() -> Router<AppState> {
 
 async fn get_name() -> String {
     CONFIG.contest_name.clone()
+}
+
+async fn get_literature_list(
+    user: Option<User>,
+    extract::State(state): extract::State<AppState>,
+) -> Result<Json<Vec<literature::Model>>, (StatusCode, &'static str)> {
+    let mut literatures = literature::Entity::find()
+        .order_by_desc(literature::Column::Id)
+        .all(&*state.db)
+        .await
+        .map_err(|err| {
+            tracing::error!(%err, "failed to query database");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "failed to query database",
+            )
+        })?;
+
+    if let Some(user) = user {
+        let mut rng: StdRng =
+            Seeder::from(&format!("{}@{}", user.handle, user.instance)).make_rng();
+        literatures.shuffle(&mut rng);
+    }
+
+    Ok(Json(literatures))
 }
 
 async fn get_literature(

@@ -68,3 +68,10 @@ export function useLiterature(
     return await get<Literature>(client, `/api/contest/literature/${id}`);
   });
 }
+
+export function useLiteratures(): UseQueryResult<Literature[], AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contest/literatures"], async () => {
+    return await get<Literature[]>(client, `/api/contest/literature`);
+  });
+}

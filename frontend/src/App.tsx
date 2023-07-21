@@ -6,6 +6,7 @@ import ArtVoteView from "./ArtVoteView";
 import { AuthRequired } from "./Auth";
 import { createClient } from "./Axios";
 import { AxiosClientProvider } from "./AxiosContext";
+import LiteratureListView from "./LiteratureListView";
 import LiteratureSubmitView from "./LiteratureSubmitView";
 import LiteratureView from "./LiteratureView";
 import LiteratureVoteView from "./LiteratureVoteView";
@@ -27,6 +28,7 @@ function App() {
 
               <Route path="/login" element={<LoginView />} />
 
+              <Route path="/literature" element={<LiteratureListView />} />
               <Route
                 path="/literature/submit"
                 element={
