@@ -8,12 +8,14 @@ import {
   useLiterature,
   useLiteratureVote,
   useUserFromApi,
+  useVotingOpened,
 } from "./QueryHooks";
 
 export default function LiteratureView() {
   const { id } = useParams();
   const { data: contestName } = useContestName();
   const { data: literature, isLoading } = useLiterature(Number(id));
+  const { data: voteOpened } = useVotingOpened();
   const { data: user } = useUserFromApi();
   const { data: vote, refetch: refetchVote } = useLiteratureVote(
     user,
@@ -61,29 +63,37 @@ export default function LiteratureView() {
             </Link>
           </h2>
           <div className="mb-4 whitespace-pre-line">{literature.text}</div>
-          {user != null ? (
-            <div>
-              <button
-                className="btn btn-primary mr-4"
-                disabled={
-                  isVoting ||
-                  vote?.voted ||
-                  (literature.authorHandle === user.handle &&
-                    literature.authorInstance === user.instance)
-                }
-                onClick={onVote}
-              >
-                투표하기
-              </button>
-              <span>현재 자신의 투표 수: {vote?.voteCount} / 5</span>
-            </div>
+          {voteOpened?.opened ? (
+            user != null ? (
+              <div>
+                <button
+                  className="btn btn-primary mr-4"
+                  disabled={
+                    isVoting ||
+                    vote?.voted ||
+                    (literature.authorHandle === user.handle &&
+                      literature.authorInstance === user.instance)
+                  }
+                  onClick={onVote}
+                >
+                  투표하기
+                </button>
+                <span>현재 자신의 투표 수: {vote?.voteCount} / 5</span>
+              </div>
+            ) : (
+              <div>
+                투표는{" "}
+                <Link to="/login" className="text-blue-600 underline">
+                  로그인
+                </Link>{" "}
+                후에 가능합니다.
+              </div>
+            )
           ) : (
             <div>
-              투표는{" "}
-              <Link to="/login" className="text-blue-600 underline">
-                로그인
-              </Link>{" "}
-              후에 가능합니다.
+              현재 투표가 불가능합니다. 투표 가능 시간:{" "}
+              {new Date(voteOpened?.openAt ?? 0).toLocaleString()} ~{" "}
+              {new Date(voteOpened?.closeAt ?? 0).toLocaleString()}
             </div>
           )}
         </div>

@@ -98,6 +98,11 @@ async fn post_literature(
     extract::State(state): extract::State<AppState>,
     extract::Path(id): extract::Path<i32>,
 ) -> Result<(), (StatusCode, &'static str)> {
+    let now = OffsetDateTime::now_utc();
+    if now < CONFIG.voting_open_at || now > CONFIG.voting_close_at {
+        return Err((StatusCode::BAD_REQUEST, "voting not available"));
+    }
+
     let tx = state.db.begin().await.map_err(|err| {
         tracing::error!(%err, "failed to begin transaction");
         (
@@ -246,6 +251,11 @@ async fn post_art(
     extract::State(state): extract::State<AppState>,
     extract::Path(id): extract::Path<i32>,
 ) -> Result<(), (StatusCode, &'static str)> {
+    let now = OffsetDateTime::now_utc();
+    if now < CONFIG.voting_open_at || now > CONFIG.voting_close_at {
+        return Err((StatusCode::BAD_REQUEST, "voting not available"));
+    }
+
     let tx = state.db.begin().await.map_err(|err| {
         tracing::error!(%err, "failed to begin transaction");
         (
