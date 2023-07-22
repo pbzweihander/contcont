@@ -41,7 +41,17 @@ export default function LiteratureView() {
   }
 
   const onVote = () => {
-    postVote({ id: Number(id) });
+    if (!voteOpened?.opened) {
+      return;
+    }
+
+    if (
+      window.confirm(
+        "투표합니다.\n투표 후에는 취소할 수 없습니다.\n투표하시겠습니까?"
+      )
+    ) {
+      postVote({ id: Number(id) });
+    }
   };
 
   return (

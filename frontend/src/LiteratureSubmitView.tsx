@@ -51,7 +51,13 @@ export default function LiteratureSubmitView() {
       return;
     }
 
-    postLiterature({ title, text, isNsfw });
+    if (
+      window.confirm(
+        "제출합니다.\n제출 후에는 취소하거나 수정할 수 없습니다.\n제출하시겠습니까?"
+      )
+    ) {
+      postLiterature({ title, text, isNsfw });
+    }
   };
 
   return (
