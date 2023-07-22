@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useParams } from "react-router-dom";
@@ -21,6 +22,8 @@ export default function ArtView() {
 
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  const [isBlurRemoved, setIsBlurRemoved] = useState(false);
 
   const { mutate: postVote, isLoading: isVoting } = usePostArtVoteMutation({
     onSuccess: async () => {
@@ -49,7 +52,12 @@ export default function ArtView() {
       </Helmet>
       <div className="flex w-screen justify-center">
         <div className="w-2/3 p-4">
-          <h2 className="mb-4 text-xl">{art.title}</h2>
+          <h2 className="mb-4 text-xl">
+            {art.isNsfw && (
+              <span className="badge badge-secondary mr-2">NSFW</span>
+            )}
+            {art.title}
+          </h2>
           <h2 className="mb-4">
             <Link to={`https://${art.authorInstance}/@${art.authorHandle}`}>
               {art.authorHandle}@{art.authorInstance}
@@ -58,7 +66,16 @@ export default function ArtView() {
           <img
             src={`/api/contest/art/${art.id}`}
             alt={art.title}
-            className="mb-4"
+            className={classNames(
+              "mb-4",
+              art.isNsfw && "cursor-pointer",
+              art.isNsfw && !isBlurRemoved && "blur-lg"
+            )}
+            onClick={() => {
+              if (art.isNsfw) {
+                setIsBlurRemoved((b) => !b);
+              }
+            }}
           />
           <p className="mb-4 whitespace-pre-line">{art.description}</p>
           {voteOpened?.opened ? (

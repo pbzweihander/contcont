@@ -24,6 +24,7 @@ export default function ArtSubmitView() {
   });
 
   const [title, setTitle] = useState("");
+  const [isNsfw, setIsNsfw] = useState(false);
   const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | undefined>(undefined);
   const [preview, setPreview] = useState<string | undefined>(undefined);
@@ -67,7 +68,7 @@ export default function ArtSubmitView() {
       return;
     }
 
-    postArt({ title, description, file });
+    postArt({ title, description, isNsfw, file });
   };
 
   return (
@@ -90,6 +91,19 @@ export default function ArtSubmitView() {
                 setTitle(e.target.value);
               }}
             />
+          </div>
+          <div className="mb-2">
+            <label className="label w-fit cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={isNsfw}
+                onChange={(e) => {
+                  setIsNsfw(e.target.checked);
+                }}
+              />
+              <span className="label-text ml-2">NSFW</span>
+            </label>
           </div>
           <div className="mb-2">
             <input

@@ -32,7 +32,10 @@ pub(super) fn create_router() -> Router<AppState> {
 
     Router::new()
         .route("/name", routing::get(get_name))
-        .route("/literature", routing::get(get_literature_list))
+        .route(
+            "/literature/metadata",
+            routing::get(get_literature_metadata_list),
+        )
         .route("/literature/:id", routing::get(get_literature))
         .route("/art/:id", routing::get(get_art))
         .route("/art/thumbnail/:id", routing::get(get_art_thumbnail))
@@ -46,11 +49,21 @@ async fn get_name() -> String {
     CONFIG.contest_name.clone()
 }
 
-async fn get_literature_list(
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct LiteratureMetadata {
+    id: i32,
+    title: String,
+    is_nsfw: bool,
+    author_handle: String,
+    author_instance: String,
+}
+
+async fn get_literature_metadata_list(
     user: Option<User>,
     extract::State(state): extract::State<AppState>,
-) -> Result<Json<Vec<literature::Model>>, (StatusCode, &'static str)> {
-    let mut literatures = literature::Entity::find()
+) -> Result<Json<Vec<LiteratureMetadata>>, (StatusCode, &'static str)> {
+    let literatures = literature::Entity::find()
         .order_by_desc(literature::Column::Id)
         .all(&*state.db)
         .await
@@ -62,13 +75,24 @@ async fn get_literature_list(
             )
         })?;
 
+    let mut literature_metadatas = literatures
+        .into_iter()
+        .map(|literature| LiteratureMetadata {
+            id: literature.id,
+            title: literature.title,
+            is_nsfw: literature.is_nsfw,
+            author_handle: literature.author_handle,
+            author_instance: literature.author_instance,
+        })
+        .collect::<Vec<_>>();
+
     if let Some(user) = user {
         let mut rng: StdRng =
             Seeder::from(&format!("{}@{}", user.handle, user.instance)).make_rng();
-        literatures.shuffle(&mut rng);
+        literature_metadatas.shuffle(&mut rng);
     }
 
-    Ok(Json(literatures))
+    Ok(Json(literature_metadatas))
 }
 
 async fn get_literature(
@@ -134,6 +158,7 @@ struct ArtMetadata {
     id: i32,
     title: String,
     description: String,
+    is_nsfw: bool,
     author_handle: String,
     author_instance: String,
 }
@@ -160,6 +185,7 @@ async fn get_art_metadata_list(
             id: art.id,
             title: art.title,
             description: art.description,
+            is_nsfw: art.is_nsfw,
             author_handle: art.author_handle,
             author_instance: art.author_instance,
         })
@@ -194,6 +220,7 @@ async fn get_art_metadata(
         id: art.id,
         title: art.title,
         description: art.description,
+        is_nsfw: art.is_nsfw,
         author_handle: art.author_handle,
         author_instance: art.author_instance,
     }))

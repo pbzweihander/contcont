@@ -6,6 +6,7 @@ import {
   ArtMetadata,
   GetOpenedResp,
   Literature,
+  LiteratureMetadata,
   User,
   Vote,
 } from "./HttpTypes";
@@ -75,10 +76,16 @@ export function useLiterature(
   });
 }
 
-export function useLiteratures(): UseQueryResult<Literature[], AxiosError> {
+export function useLiteratureMetadatas(): UseQueryResult<
+  LiteratureMetadata[],
+  AxiosError
+> {
   const client = useAxiosClient();
-  return useQuery(["contest/literatures"], async () => {
-    return await get<Literature[]>(client, "/api/contest/literature");
+  return useQuery(["contest/literature/metadatas"], async () => {
+    return await get<LiteratureMetadata[]>(
+      client,
+      "/api/contest/literature/metadata"
+    );
   });
 }
 

@@ -87,6 +87,7 @@ pub enum Literature {
     Text,
     AuthorHandle,
     AuthorInstance,
+    IsNsfw,
 }
 
 #[derive(Iden)]
@@ -99,4 +100,5 @@ pub enum Art {
     AuthorHandle,
     AuthorInstance,
     Description,
+    IsNsfw,
 }

@@ -1,11 +1,11 @@
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
-import { useContestName, useLiteratures } from "./QueryHooks";
+import { useContestName, useLiteratureMetadatas } from "./QueryHooks";
 
 export default function LiteratureView() {
   const { data: contestName } = useContestName();
-  const { data: literatures, isLoading } = useLiteratures();
+  const { data: literatures, isLoading } = useLiteratureMetadatas();
 
   if (isLoading || literatures == null) {
     return <span className="loading loading-spinner loading-lg" />;
@@ -21,6 +21,9 @@ export default function LiteratureView() {
           {literatures.map((literature) => (
             <li key={literature.id} className="p-2">
               <Link to={`/literature/${literature.id}`}>
+                {literature.isNsfw && (
+                  <span className="badge badge-secondary mr-2">NSFW</span>
+                )}
                 {literature.authorHandle}@{literature.authorInstance} -{" "}
                 {literature.title}
               </Link>

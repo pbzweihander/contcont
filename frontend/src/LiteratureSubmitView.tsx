@@ -25,6 +25,7 @@ export default function LiteratureSubmitView() {
     });
 
   const [title, setTitle] = useState("");
+  const [isNsfw, setIsNsfw] = useState(false);
   const [text, setText] = useState("");
 
   if (isOpenedLoading || opened == null) {
@@ -50,7 +51,7 @@ export default function LiteratureSubmitView() {
       return;
     }
 
-    postLiterature({ title, text });
+    postLiterature({ title, text, isNsfw });
   };
 
   return (
@@ -73,6 +74,19 @@ export default function LiteratureSubmitView() {
                 setTitle(e.target.value);
               }}
             />
+          </div>
+          <div className="mb-2">
+            <label className="label w-fit cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={isNsfw}
+                onChange={(e) => {
+                  setIsNsfw(e.target.checked);
+                }}
+              />
+              <span className="label-text ml-2">NSFW</span>
+            </label>
           </div>
           <div className="mb-2">
             <label className="label">

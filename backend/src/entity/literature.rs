@@ -13,6 +13,7 @@ pub struct Model {
     pub text: String,
     pub author_handle: String,
     pub author_instance: String,
+    pub is_nsfw: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -54,7 +54,12 @@ export default function LiteratureView() {
       </Helmet>
       <div className="flex w-screen justify-center">
         <div className="w-2/3 p-4">
-          <h2 className="mb-4 text-xl">{literature.title}</h2>
+          <h2 className="mb-4 text-xl">
+            {literature.isNsfw && (
+              <span className="badge badge-secondary mr-2">NSFW</span>
+            )}
+            {literature.title}
+          </h2>
           <h3 className="mb-4">
             <Link
               to={`https://${literature.authorInstance}/@${literature.authorHandle}`}

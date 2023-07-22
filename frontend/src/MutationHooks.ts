@@ -61,6 +61,7 @@ export function usePostArtMutation(
     const formData = new FormData();
     formData.append("title", payload.title);
     formData.append("description", payload.description);
+    formData.append("isNsfw", payload.isNsfw ? "true" : "false");
     formData.append("data", payload.file);
     const resp = await client.post<ArtMetadata>(
       "/api/contest/submission/art",

@@ -40,9 +40,11 @@ async fn get_opened() -> Json<GetOpenedResp> {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct PostLiteratureReq {
     title: String,
     text: String,
+    is_nsfw: bool,
 }
 
 async fn post_literature(
@@ -92,6 +94,7 @@ async fn post_literature(
         text: ActiveValue::Set(req.text),
         author_handle: ActiveValue::Set(user.handle),
         author_instance: ActiveValue::Set(user.instance),
+        is_nsfw: ActiveValue::Set(req.is_nsfw),
     };
 
     let literature = literature_activemodel.insert(&tx).await.map_err(|err| {
@@ -120,6 +123,7 @@ async fn post_art(
 ) -> Result<Json<ArtMetadata>, (StatusCode, &'static str)> {
     let mut title = None;
     let mut description = None;
+    let mut is_nsfw = None;
     let mut data = None;
 
     while let Some(field) = req.next_field().await.map_err(|err| {
@@ -149,6 +153,16 @@ async fn post_art(
                     "failed to read from multipart field",
                 )
             })?);
+        } else if name == "isNsfw" {
+            is_nsfw = Some(
+                field.text().await.map_err(|err| {
+                    tracing::error!(%err, "failed to read from multipart field");
+                    (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "failed to read from multipart field",
+                    )
+                })? == "true",
+            );
         } else if name == "data" {
             data = Some(field.bytes().await.map_err(|err| {
                 tracing::error!(%err, "failed to read from multipart field");
@@ -162,6 +176,7 @@ async fn post_art(
 
     let title = title.ok_or((StatusCode::BAD_REQUEST, "title not found"))?;
     let description = description.ok_or((StatusCode::BAD_REQUEST, "description not found"))?;
+    let is_nsfw = is_nsfw.ok_or((StatusCode::BAD_REQUEST, "isNsfw not found"))?;
     let data = data.ok_or((StatusCode::BAD_REQUEST, "data not found"))?;
 
     if title.graphemes(true).count() > 100 || description.graphemes(true).count() > 2000 {
@@ -235,6 +250,7 @@ async fn post_art(
         author_handle: ActiveValue::Set(user.handle),
         author_instance: ActiveValue::Set(user.instance),
         description: ActiveValue::Set(description),
+        is_nsfw: ActiveValue::Set(is_nsfw),
     };
 
     let art = art_activemodel.insert(&tx).await.map_err(|err| {
@@ -257,6 +273,7 @@ async fn post_art(
         id: art.id,
         title: art.title,
         description: art.description,
+        is_nsfw: art.is_nsfw,
         author_handle: art.author_handle,
         author_instance: art.author_instance,
     }))

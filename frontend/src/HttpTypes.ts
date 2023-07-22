@@ -21,6 +21,15 @@ export interface Literature {
   id: number;
   title: string;
   text: string;
+  isNsfw: boolean;
+  authorHandle: string;
+  authorInstance: string;
+}
+
+export interface LiteratureMetadata {
+  id: number;
+  title: string;
+  isNsfw: boolean;
   authorHandle: string;
   authorInstance: string;
 }
@@ -29,6 +38,7 @@ export interface ArtMetadata {
   id: number;
   title: string;
   description: string;
+  isNsfw: boolean;
   authorHandle: string;
   authorInstance: string;
 }
@@ -36,11 +46,13 @@ export interface ArtMetadata {
 export interface PostLiteratureReq {
   title: string;
   text: string;
+  isNsfw: boolean;
 }
 
 export interface PostArtReq {
   title: string;
   description: string;
+  isNsfw: boolean;
   file: File;
 }
 
