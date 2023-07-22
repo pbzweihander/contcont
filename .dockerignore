@@ -1,0 +1,8 @@
+frontend/.eslintrc
+frontend/.gitignore
+frontend/node_modules/
+frontend/.prettierrc
+.git/
+.gitignore
+target/
+backend/database.sqlite
