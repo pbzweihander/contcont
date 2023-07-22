@@ -39,7 +39,15 @@ async fn main() -> anyhow::Result<()> {
         .with_line_number(true)
         .init();
 
-    let db = Database::connect(crate::config::CONFIG.database_url.as_str()).await?;
+    let db = Database::connect(format!(
+        "postgresql://{}:{}@{}:{}/{}",
+        config::CONFIG.database_user,
+        config::CONFIG.database_password,
+        config::CONFIG.database_host,
+        config::CONFIG.database_port,
+        config::CONFIG.database_database,
+    ))
+    .await?;
 
     migration::Migrator::up(&db, None).await?;
 
