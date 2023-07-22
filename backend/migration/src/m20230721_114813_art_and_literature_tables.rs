@@ -98,4 +98,5 @@ pub enum Art {
     ThumbnailData,
     AuthorHandle,
     AuthorInstance,
+    Description,
 }

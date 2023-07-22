@@ -28,6 +28,7 @@ export interface Literature {
 export interface ArtMetadata {
   id: number;
   title: string;
+  description: string;
   authorHandle: string;
   authorInstance: string;
 }
@@ -39,6 +40,7 @@ export interface PostLiteratureReq {
 
 export interface PostArtReq {
   title: string;
+  description: string;
   file: File;
 }
 

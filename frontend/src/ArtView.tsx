@@ -60,6 +60,7 @@ export default function ArtView() {
             alt={art.title}
             className="mb-4"
           />
+          <p className="mb-4 whitespace-pre-line">{art.description}</p>
           {voteOpened?.opened ? (
             user != null ? (
               <div>

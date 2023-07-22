@@ -14,7 +14,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.72"
 async-trait = "0.1.71"
-axum = { version = "0.6.19", features = ["headers"] }
+axum = { version = "0.6.19", features = ["headers", "multipart"] }
 envy = "0.4.2"
 jsonwebtoken = "8.3.0"
 migration = { version = "0.1.0", path = "migration" }

@@ -55,14 +55,14 @@ export default function LiteratureView() {
       <div className="flex w-screen justify-center">
         <div className="w-2/3 p-4">
           <h2 className="mb-4 text-xl">{literature.title}</h2>
-          <h2 className="mb-4">
+          <h3 className="mb-4">
             <Link
               to={`https://${literature.authorInstance}/@${literature.authorHandle}`}
             >
               {literature.authorHandle}@{literature.authorInstance}
             </Link>
-          </h2>
-          <div className="mb-4 whitespace-pre-line">{literature.text}</div>
+          </h3>
+          <p className="mb-4 whitespace-pre-line">{literature.text}</p>
           {voteOpened?.opened ? (
             user != null ? (
               <div>

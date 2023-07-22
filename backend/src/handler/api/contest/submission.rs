@@ -1,6 +1,10 @@
 use std::io::Cursor;
 
-use axum::{body::Bytes, extract, http::StatusCode, routing, Json, Router};
+use axum::{
+    extract::{self, Multipart},
+    http::StatusCode,
+    routing, Json, Router,
+};
 use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter,
     TransactionTrait,
@@ -109,19 +113,63 @@ async fn post_literature(
     Ok(Json(literature))
 }
 
-#[derive(Deserialize)]
-struct PostArtQuery {
-    title: String,
-}
-
 async fn post_art(
     user: User,
     extract::State(state): extract::State<AppState>,
-    extract::Query(query): extract::Query<PostArtQuery>,
-    req: Bytes,
+    mut req: Multipart,
 ) -> Result<Json<ArtMetadata>, (StatusCode, &'static str)> {
-    if req.len() > 1000 * 1000 * 10 {
-        return Err((StatusCode::BAD_REQUEST, "too big data"));
+    let mut title = None;
+    let mut description = None;
+    let mut data = None;
+
+    while let Some(field) = req.next_field().await.map_err(|err| {
+        tracing::error!(%err, "failed to read from multipart data");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "failed to read from multipart data",
+        )
+    })? {
+        let name = field.name().ok_or((
+            StatusCode::BAD_REQUEST,
+            "multipart field does not have name",
+        ))?;
+        if name == "title" {
+            title = Some(field.text().await.map_err(|err| {
+                tracing::error!(%err, "failed to read from multipart field");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to read from multipart field",
+                )
+            })?);
+        } else if name == "description" {
+            description = Some(field.text().await.map_err(|err| {
+                tracing::error!(%err, "failed to read from multipart field");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to read from multipart field",
+                )
+            })?);
+        } else if name == "data" {
+            data = Some(field.bytes().await.map_err(|err| {
+                tracing::error!(%err, "failed to read from multipart field");
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "failed to read from multipart field",
+                )
+            })?);
+        }
+    }
+
+    let title = title.ok_or((StatusCode::BAD_REQUEST, "title not found"))?;
+    let description = description.ok_or((StatusCode::BAD_REQUEST, "description not found"))?;
+    let data = data.ok_or((StatusCode::BAD_REQUEST, "data not found"))?;
+
+    if title.graphemes(true).count() > 100 || description.graphemes(true).count() > 2000 {
+        return Err((StatusCode::BAD_REQUEST, "too long text"));
+    }
+
+    if data.len() > 1024 * 1024 * 10 {
+        return Err((StatusCode::BAD_REQUEST, "too large image"));
     }
 
     let now = OffsetDateTime::now_utc();
@@ -157,7 +205,7 @@ async fn post_art(
     }
 
     let mut thumbnails = create_thumbnails(
-        Cursor::new(req.to_vec()),
+        Cursor::new(data.clone()),
         mime::IMAGE_PNG,
         [ThumbnailSize::Medium],
     )
@@ -181,11 +229,12 @@ async fn post_art(
 
     let art_activemodel = art::ActiveModel {
         id: ActiveValue::NotSet,
-        title: ActiveValue::Set(query.title),
-        data: ActiveValue::Set(req.to_vec()),
+        title: ActiveValue::Set(title),
+        data: ActiveValue::Set(data.to_vec()),
         thumbnail_data: ActiveValue::Set(thumbnail_data.into_inner()),
         author_handle: ActiveValue::Set(user.handle),
         author_instance: ActiveValue::Set(user.instance),
+        description: ActiveValue::Set(description),
     };
 
     let art = art_activemodel.insert(&tx).await.map_err(|err| {
@@ -207,6 +256,7 @@ async fn post_art(
     Ok(Json(ArtMetadata {
         id: art.id,
         title: art.title,
+        description: art.description,
         author_handle: art.author_handle,
         author_instance: art.author_instance,
     }))

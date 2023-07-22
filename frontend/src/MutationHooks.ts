@@ -58,12 +58,13 @@ export function usePostArtMutation(
 ): MutationRet<PostArtReq, ArtMetadata> {
   const client = useAxiosClient();
   return useMutation(async (payload: PostArtReq) => {
+    const formData = new FormData();
+    formData.append("title", payload.title);
+    formData.append("description", payload.description);
+    formData.append("data", payload.file);
     const resp = await client.post<ArtMetadata>(
       "/api/contest/submission/art",
-      payload.file,
-      {
-        params: { title: payload.title },
-      }
+      formData
     );
     return resp.data;
   }, options);

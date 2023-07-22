@@ -16,6 +16,7 @@ pub struct Model {
     pub thumbnail_data: Vec<u8>,
     pub author_handle: String,
     pub author_instance: String,
+    pub description: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

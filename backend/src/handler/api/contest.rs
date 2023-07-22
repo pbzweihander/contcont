@@ -133,6 +133,7 @@ async fn get_art_thumbnail(
 struct ArtMetadata {
     id: i32,
     title: String,
+    description: String,
     author_handle: String,
     author_instance: String,
 }
@@ -158,6 +159,7 @@ async fn get_art_metadata_list(
         .map(|art| ArtMetadata {
             id: art.id,
             title: art.title,
+            description: art.description,
             author_handle: art.author_handle,
             author_instance: art.author_instance,
         })
@@ -191,6 +193,7 @@ async fn get_art_metadata(
     Ok(Json(ArtMetadata {
         id: art.id,
         title: art.title,
+        description: art.description,
         author_handle: art.author_handle,
         author_instance: art.author_instance,
     }))

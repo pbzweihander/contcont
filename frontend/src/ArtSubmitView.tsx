@@ -24,6 +24,7 @@ export default function ArtSubmitView() {
   });
 
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | undefined>(undefined);
   const [preview, setPreview] = useState<string | undefined>(undefined);
 
@@ -52,7 +53,12 @@ export default function ArtSubmitView() {
     );
   }
 
-  const isInvalid = title === "" || title.length > 100 || file == null;
+  const isInvalid =
+    title === "" ||
+    title.length > 100 ||
+    description === "" ||
+    description.length > 2000 ||
+    file == null;
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,7 +67,7 @@ export default function ArtSubmitView() {
       return;
     }
 
-    postArt({ title, file });
+    postArt({ title, description, file });
   };
 
   return (
@@ -92,6 +98,21 @@ export default function ArtSubmitView() {
               className="file-input file-input-bordered w-full"
               onChange={(e) => {
                 setFile(e.target.files?.[0]);
+              }}
+            />
+          </div>
+          <div className="mb-2">
+            <label className="label">
+              <label className="label-text">설명</label>
+              <label className="label-text-alt">
+                {description.length} / 2000
+              </label>
+            </label>
+            <textarea
+              className="textarea textarea-bordered h-[200px] w-full"
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
               }}
             />
           </div>
