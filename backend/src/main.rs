@@ -39,11 +39,7 @@ async fn main() -> anyhow::Result<()> {
         .with_line_number(true)
         .init();
 
-    let db = Database::connect(format!(
-        "sqlite://{}",
-        crate::config::CONFIG.database_file_path
-    ))
-    .await?;
+    let db = Database::connect(crate::config::CONFIG.database_url.as_str()).await?;
 
     migration::Migrator::up(&db, None).await?;
 

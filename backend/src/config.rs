@@ -14,8 +14,8 @@ fn default_listen_addr() -> String {
     "0.0.0.0:3000".to_string()
 }
 
-fn default_database_file_path() -> String {
-    "./database.sqlite".to_string()
+fn default_database_url() -> Url {
+    Url::parse("postgresql://postgres:contcont@localhost:5432/postgres").unwrap()
 }
 
 fn default_static_files_directory_path() -> PathBuf {
@@ -41,8 +41,8 @@ pub struct Config {
     pub listen_addr: String,
     pub base_url: Url,
 
-    #[serde(default = "default_database_file_path")]
-    pub database_file_path: String,
+    #[serde(default = "default_database_url")]
+    pub database_url: Url,
 
     #[serde(default = "default_static_files_directory_path")]
     pub static_files_directory_path: PathBuf,

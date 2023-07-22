@@ -5,4 +5,3 @@ frontend/.prettierrc
 .git/
 .gitignore
 target/
-backend/database.sqlite

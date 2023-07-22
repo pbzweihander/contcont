@@ -24,8 +24,7 @@ FROM debian:stable-slim
 
 RUN apt-get update &&\
     apt-get install -y ca-certificates &&\
-    rm -rf /var/lib/apt/lists/* &&\
-    touch database.sqlite
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=backend /app/target/release/contcont /usr/local/bin/contcont
 COPY --from=frontend /app/frontend/dist /srv/static
