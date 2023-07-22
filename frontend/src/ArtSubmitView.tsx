@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 
+import LoadingView from "./LoadingView";
 import { usePostArtMutation } from "./MutationHooks";
 import { useContestName, useSubmissionOpened } from "./QueryHooks";
 import SubmissionNotOpenedView from "./SubmissionNotOpenedView";
@@ -42,7 +43,7 @@ export default function ArtSubmitView() {
   }, [file]);
 
   if (isOpenedLoading || opened == null) {
-    return <span className="loading loading-spinner loading-lg" />;
+    return <LoadingView />;
   }
 
   if (!opened.opened) {

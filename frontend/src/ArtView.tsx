@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useParams } from "react-router-dom";
 
+import LoadingView from "./LoadingView";
 import { usePostArtVoteMutation } from "./MutationHooks";
 import {
   useArtMetadata,
@@ -36,7 +37,7 @@ export default function ArtView() {
   });
 
   if (isLoading || art == null) {
-    return <span className="loading loading-spinner loading-lg" />;
+    return <LoadingView />;
   }
 
   const onVote = () => {

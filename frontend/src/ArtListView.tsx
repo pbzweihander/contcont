@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
+import LoadingView from "./LoadingView";
 import { useArtMetadatas, useContestName } from "./QueryHooks";
 
 export default function ArtListView() {
@@ -9,7 +10,7 @@ export default function ArtListView() {
   const { data: arts, isLoading } = useArtMetadatas();
 
   if (isLoading || arts == null) {
-    return <span className="loading loading-spinner loading-lg" />;
+    return <LoadingView />;
   }
 
   return (

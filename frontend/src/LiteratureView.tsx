@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useParams } from "react-router-dom";
 
+import LoadingView from "./LoadingView";
 import { usePostLiteratureVoteMutation } from "./MutationHooks";
 import {
   useContestName,
@@ -37,7 +38,7 @@ export default function LiteratureView() {
     });
 
   if (isLoading || literature == null) {
-    return <span className="loading loading-spinner loading-lg" />;
+    return <LoadingView />;
   }
 
   const onVote = () => {

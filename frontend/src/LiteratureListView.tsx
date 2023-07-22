@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
+import LoadingView from "./LoadingView";
 import { useContestName, useLiteratureMetadatas } from "./QueryHooks";
 
 export default function LiteratureView() {
@@ -8,7 +9,7 @@ export default function LiteratureView() {
   const { data: literatures, isLoading } = useLiteratureMetadatas();
 
   if (isLoading || literatures == null) {
-    return <span className="loading loading-spinner loading-lg" />;
+    return <LoadingView />;
   }
 
   return (

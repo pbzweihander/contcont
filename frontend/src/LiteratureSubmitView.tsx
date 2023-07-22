@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 
+import LoadingView from "./LoadingView";
 import { usePostLiteratureMutation } from "./MutationHooks";
 import { useContestName, useSubmissionOpened } from "./QueryHooks";
 import SubmissionNotOpenedView from "./SubmissionNotOpenedView";
@@ -29,7 +30,7 @@ export default function LiteratureSubmitView() {
   const [text, setText] = useState("");
 
   if (isOpenedLoading || opened == null) {
-    return <span className="loading loading-spinner loading-lg" />;
+    return <LoadingView />;
   }
 
   if (!opened.opened) {
