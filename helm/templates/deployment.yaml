@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "contcont.fullname" . }}
+  labels:
+    {{- include "contcont.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "contcont.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "contcont.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "contcont.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: web
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.port }}
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /api/healthz
+            port: http
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        env:
+        - name: RUST_LOG
+          value: info
+        - name: LISTEN_ADDR
+          value: 0.0.0.0:{{ .Values.service.port }}
+        - name: BASE_URL
+          value: {{ .Values.config.baseUrl }}
+        - name: CONTEST_NAME
+          value: {{ .Values.config.contestName }}
+        - name: JWT_SECRET
+          value: {{ .Values.config.jwtSecret | default (randAlphaNum 64) }}
+        - name: SUBMISSION_OPEN_AT
+          value: {{ .Values.config.submission.openAt }}
+        - name: SUBMISSION_CLOSE_AT
+          value: {{ .Values.config.submission.closeAt }}
+        - name: VOTING_OPEN_AT
+          value: {{ .Values.config.voting.openAt }}
+        - name: VOTING_CLOSE_AT
+          value: {{ .Values.config.voting.closeAt }}
+        - name: DATABASE_HOST
+          value: {{ include "contcont.fullname" . }}-postgresql
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_USER
+          value: postgres
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "contcont.fullname" . }}-postgresql
+              key: postgres-password
+        - name: POSTGRES_DATABASE
+          value: postgres
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,14 @@
+apiVersion: v2
+name: contcont
+description: A Helm chart for contcont
+
+type: application
+
+version: 0.1.0
+
+appVersion: 0.0.0
+
+dependencies:
+- name: postgresql
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 12.6.8
