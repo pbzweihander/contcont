@@ -90,3 +90,6 @@ config:
   enabled:
     literature: true
     art: true
+  postgres:
+    serviceName: ""
+    secretNae: ""
