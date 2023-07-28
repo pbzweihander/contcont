@@ -76,7 +76,7 @@ export default function LiteratureSubmitView() {
       <Helmet>
         <title>글 제출 - {contestName}</title>
       </Helmet>
-      <div className="flex w-screen justify-center p-4">
+      <div className="flex w-full justify-center p-4">
         <form className="w-2/3" onSubmit={onSubmit}>
           <div className="mb-2">
             <label className="label">

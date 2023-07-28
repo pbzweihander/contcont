@@ -12,7 +12,7 @@ export default function MainView() {
       <Helmet>
         <title>{contestName}</title>
       </Helmet>
-      <div className="flex w-screen justify-center p-10">
+      <div className="flex w-full justify-center p-10">
         {enabled?.literature && (
           <ul className="menu w-56">
             <li className="menu-title">

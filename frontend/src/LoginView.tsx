@@ -30,7 +30,7 @@ export default function LoginView() {
       <Helmet>
         <title>{contestName}</title>
       </Helmet>
-      <div className="flex w-screen justify-center p-4">
+      <div className="flex w-full justify-center p-4">
         <div className="w-2/3">
           <div className="mb-2">
             사용 중인 Mastodon/Misskey 계정이 있는 인스턴스를 입력해주세요.

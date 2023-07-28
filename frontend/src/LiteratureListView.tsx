@@ -31,7 +31,7 @@ export default function LiteratureView() {
       <Helmet>
         <title>글 - {contestName}</title>
       </Helmet>
-      <div className="flex w-screen justify-center">
+      <div className="flex w-full justify-center">
         <ul className="w-2/3 p-4">
           {literatures.map((literature) => (
             <li key={literature.id} className="p-2">

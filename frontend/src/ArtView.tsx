@@ -77,7 +77,7 @@ export default function ArtView() {
           {art.title} - {art.authorHandle}@{art.authorInstance} - {contestName}
         </title>
       </Helmet>
-      <div className="flex w-screen justify-center">
+      <div className="flex w-full justify-center">
         <div className="w-2/3 p-4">
           <h2 className="mb-4 text-xl">
             {art.isNsfw && (

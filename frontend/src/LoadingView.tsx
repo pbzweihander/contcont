@@ -10,7 +10,7 @@ export default function LoadingView() {
       <Helmet>
         <title>{contestName}</title>
       </Helmet>
-      <div className="flex w-screen justify-center p-10">
+      <div className="flex w-full justify-center p-10">
         <span className="loading loading-spinner loading-lg" />
       </div>
     </>
