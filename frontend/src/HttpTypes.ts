@@ -1,3 +1,8 @@
+export interface GetEnabledResp {
+  literature: boolean;
+  art: boolean;
+}
+
 export interface User {
   handle: string;
   instance: string;

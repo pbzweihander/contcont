@@ -52,6 +52,10 @@ async fn post_literature(
     extract::State(state): extract::State<AppState>,
     Json(req): Json<PostLiteratureReq>,
 ) -> Result<Json<literature::Model>, (StatusCode, &'static str)> {
+    if !CONFIG.literature_enabled {
+        return Err((StatusCode::BAD_REQUEST, "literature not enabled"));
+    }
+
     if req.title.graphemes(true).count() > 100 || req.text.graphemes(true).count() > 7000 {
         return Err((StatusCode::BAD_REQUEST, "too long text"));
     }
@@ -121,6 +125,10 @@ async fn post_art(
     extract::State(state): extract::State<AppState>,
     mut req: Multipart,
 ) -> Result<Json<ArtMetadata>, (StatusCode, &'static str)> {
+    if !CONFIG.art_enabled {
+        return Err((StatusCode::BAD_REQUEST, "art not enabled"));
+    }
+
     let mut title = None;
     let mut description = None;
     let mut is_nsfw = None;

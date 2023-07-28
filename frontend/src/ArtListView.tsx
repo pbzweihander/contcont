@@ -3,11 +3,21 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
 import LoadingView from "./LoadingView";
-import { useArtMetadatas, useContestName } from "./QueryHooks";
+import NotEnabledView from "./NotEnabledView";
+import { useArtMetadatas, useContestName, useEnabled } from "./QueryHooks";
 
 export default function ArtListView() {
   const { data: contestName } = useContestName();
+  const { data: enabled, isLoading: isEnabledLoading } = useEnabled();
   const { data: arts, isLoading } = useArtMetadatas();
+
+  if (isEnabledLoading || enabled == null) {
+    return <LoadingView />;
+  }
+
+  if (!enabled.art) {
+    return <NotEnabledView />;
+  }
 
   if (isLoading || arts == null) {
     return <LoadingView />;

@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 
 import LoadingView from "./LoadingView";
 import { usePostLiteratureMutation } from "./MutationHooks";
-import { useContestName, useSubmissionOpened } from "./QueryHooks";
+import NotEnabledView from "./NotEnabledView";
+import { useContestName, useEnabled, useSubmissionOpened } from "./QueryHooks";
 import SubmissionNotOpenedView from "./SubmissionNotOpenedView";
 
 export default function LiteratureSubmitView() {
   const navigate = useNavigate();
 
   const { data: contestName } = useContestName();
+  const { data: enabled, isLoading: isEnabledLoading } = useEnabled();
   const { data: opened, isLoading: isOpenedLoading } = useSubmissionOpened();
 
   const [error, setError] = useState("");
@@ -28,6 +30,14 @@ export default function LiteratureSubmitView() {
   const [title, setTitle] = useState("");
   const [isNsfw, setIsNsfw] = useState(false);
   const [text, setText] = useState("");
+
+  if (isEnabledLoading || enabled == null) {
+    return <LoadingView />;
+  }
+
+  if (!enabled.literature) {
+    return <NotEnabledView />;
+  }
 
   if (isOpenedLoading || opened == null) {
     return <LoadingView />;

@@ -1,11 +1,12 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
-import { useContestName, useUserFromApi } from "./QueryHooks";
+import { useContestName, useEnabled, useUserFromApi } from "./QueryHooks";
 
 export default function NavBar() {
   const navigate = useNavigate();
 
   const { data: contestName } = useContestName();
+  const { data: enabled } = useEnabled();
   const { data: user, remove: removeUser } = useUserFromApi();
 
   const onLogout = () => {
@@ -23,38 +24,42 @@ export default function NavBar() {
           </Link>
         </div>
         <div className="navbar-end p-2">
-          <div className="dropdown dropdown-end mr-2">
-            <label tabIndex={0} className="btn">
-              글
-            </label>
-            <ul
-              tabIndex={0}
-              className="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
-            >
-              <li>
-                <Link to="/literature/submit">출품</Link>
-              </li>
-              <li>
-                <Link to="/literature">감상 / 투표</Link>
-              </li>
-            </ul>
-          </div>
-          <div className="dropdown-end dropdown mr-2">
-            <label tabIndex={0} className="btn">
-              그림
-            </label>
-            <ul
-              tabIndex={0}
-              className="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
-            >
-              <li>
-                <Link to="/art/submit">출품</Link>
-              </li>
-              <li>
-                <Link to="/art">감상 / 투표</Link>
-              </li>
-            </ul>
-          </div>
+          {enabled?.literature && (
+            <div className="dropdown dropdown-end mr-2">
+              <label tabIndex={0} className="btn">
+                글
+              </label>
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
+              >
+                <li>
+                  <Link to="/literature/submit">출품</Link>
+                </li>
+                <li>
+                  <Link to="/literature">감상 / 투표</Link>
+                </li>
+              </ul>
+            </div>
+          )}
+          {enabled?.art && (
+            <div className="dropdown-end dropdown mr-2">
+              <label tabIndex={0} className="btn">
+                그림
+              </label>
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content rounded-box z-[1] w-52 bg-base-100 p-2 shadow"
+              >
+                <li>
+                  <Link to="/art/submit">출품</Link>
+                </li>
+                <li>
+                  <Link to="/art">감상 / 투표</Link>
+                </li>
+              </ul>
+            </div>
+          )}
           {user != null ? (
             <>
               <span className="mr-2">

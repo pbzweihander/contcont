@@ -4,8 +4,10 @@ import { Link, useParams } from "react-router-dom";
 
 import LoadingView from "./LoadingView";
 import { usePostLiteratureVoteMutation } from "./MutationHooks";
+import NotEnabledView from "./NotEnabledView";
 import {
   useContestName,
+  useEnabled,
   useLiterature,
   useLiteratureVote,
   useUserFromApi,
@@ -15,6 +17,7 @@ import {
 export default function LiteratureView() {
   const { id } = useParams();
   const { data: contestName } = useContestName();
+  const { data: enabled, isLoading: isEnabledLoading } = useEnabled();
   const { data: literature, isLoading } = useLiterature(Number(id));
   const { data: voteOpened } = useVotingOpened();
   const { data: user } = useUserFromApi();
@@ -36,6 +39,14 @@ export default function LiteratureView() {
         setError((error.response?.data as string) ?? error.message);
       },
     });
+
+  if (isEnabledLoading || enabled == null) {
+    return <LoadingView />;
+  }
+
+  if (!enabled.literature) {
+    return <NotEnabledView />;
+  }
 
   if (isLoading || literature == null) {
     return <LoadingView />;

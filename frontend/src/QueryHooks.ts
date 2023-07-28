@@ -4,6 +4,7 @@ import { UseQueryResult, useQuery } from "react-query";
 import { useAxiosClient } from "./AxiosContext";
 import {
   ArtMetadata,
+  GetEnabledResp,
   GetOpenedResp,
   Literature,
   LiteratureMetadata,
@@ -35,6 +36,13 @@ export function useContestName(): UseQueryResult<string, AxiosError> {
   const client = useAxiosClient();
   return useQuery(["contest/name"], async () => {
     const resp = await get<string>(client, "/api/contest/name");
+    return resp;
+  });
+}
+export function useEnabled(): UseQueryResult<GetEnabledResp, AxiosError> {
+  const client = useAxiosClient();
+  return useQuery(["contest/enabled"], async () => {
+    const resp = await get<GetEnabledResp>(client, "/api/contest/enabled");
     return resp;
   });
 }

@@ -5,10 +5,12 @@ import { Link, useParams } from "react-router-dom";
 
 import LoadingView from "./LoadingView";
 import { usePostArtVoteMutation } from "./MutationHooks";
+import NotEnabledView from "./NotEnabledView";
 import {
   useArtMetadata,
   useArtVote,
   useContestName,
+  useEnabled,
   useUserFromApi,
   useVotingOpened,
 } from "./QueryHooks";
@@ -16,6 +18,7 @@ import {
 export default function ArtView() {
   const { id } = useParams();
   const { data: contestName } = useContestName();
+  const { data: enabled, isLoading: isEnabledLoading } = useEnabled();
   const { data: art, isLoading } = useArtMetadata(Number(id));
   const { data: voteOpened } = useVotingOpened();
   const { data: user } = useUserFromApi();
@@ -35,6 +38,14 @@ export default function ArtView() {
       setError((error.response?.data as string) ?? error.message);
     },
   });
+
+  if (isEnabledLoading || enabled == null) {
+    return <LoadingView />;
+  }
+
+  if (!enabled.art) {
+    return <NotEnabledView />;
+  }
 
   if (isLoading || art == null) {
     return <LoadingView />;

@@ -2,11 +2,25 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 
 import LoadingView from "./LoadingView";
-import { useContestName, useLiteratureMetadatas } from "./QueryHooks";
+import NotEnabledView from "./NotEnabledView";
+import {
+  useContestName,
+  useEnabled,
+  useLiteratureMetadatas,
+} from "./QueryHooks";
 
 export default function LiteratureView() {
   const { data: contestName } = useContestName();
+  const { data: enabled, isLoading: isEnabledLoading } = useEnabled();
   const { data: literatures, isLoading } = useLiteratureMetadatas();
+
+  if (isEnabledLoading || enabled == null) {
+    return <LoadingView />;
+  }
+
+  if (!enabled.literature) {
+    return <NotEnabledView />;
+  }
 
   if (isLoading || literatures == null) {
     return <LoadingView />;

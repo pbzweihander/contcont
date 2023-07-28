@@ -38,6 +38,14 @@ fn default_static_files_directory_path() -> PathBuf {
     PathBuf::from("../frontend/dist")
 }
 
+fn default_literature_enabled() -> bool {
+    true
+}
+
+fn default_art_enabled() -> bool {
+    true
+}
+
 fn deserialize_jwt_secret<'de, D>(d: D) -> Result<(EncodingKey, DecodingKey), D::Error>
 where
     D: serde::Deserializer<'de>,
@@ -73,6 +81,11 @@ pub struct Config {
 
     #[serde(deserialize_with = "deserialize_jwt_secret")]
     pub jwt_secret: (EncodingKey, DecodingKey),
+
+    #[serde(default = "default_literature_enabled")]
+    pub literature_enabled: bool,
+    #[serde(default = "default_art_enabled")]
+    pub art_enabled: bool,
 
     #[serde(with = "time::serde::rfc3339")]
     pub submission_open_at: OffsetDateTime,

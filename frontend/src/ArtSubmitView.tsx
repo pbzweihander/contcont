@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 
 import LoadingView from "./LoadingView";
 import { usePostArtMutation } from "./MutationHooks";
-import { useContestName, useSubmissionOpened } from "./QueryHooks";
+import NotEnabledView from "./NotEnabledView";
+import { useContestName, useEnabled, useSubmissionOpened } from "./QueryHooks";
 import SubmissionNotOpenedView from "./SubmissionNotOpenedView";
 
 export default function ArtSubmitView() {
   const navigate = useNavigate();
 
   const { data: contestName } = useContestName();
+  const { data: enabled, isLoading: isEnabledLoading } = useEnabled();
   const { data: opened, isLoading: isOpenedLoading } = useSubmissionOpened();
 
   const [error, setError] = useState("");
@@ -41,6 +43,14 @@ export default function ArtSubmitView() {
 
     return () => URL.revokeObjectURL(previewUrl);
   }, [file]);
+
+  if (isEnabledLoading || enabled == null) {
+    return <LoadingView />;
+  }
+
+  if (!enabled.art) {
+    return <NotEnabledView />;
+  }
 
   if (isOpenedLoading || opened == null) {
     return <LoadingView />;

@@ -32,6 +32,7 @@ pub(super) fn create_router() -> Router<AppState> {
 
     Router::new()
         .route("/name", routing::get(get_name))
+        .route("/enabled", routing::get(get_enabled))
         .route(
             "/literature/metadata",
             routing::get(get_literature_metadata_list),
@@ -50,6 +51,19 @@ async fn get_name() -> String {
 }
 
 #[derive(Serialize)]
+struct GetEnabledResp {
+    literature: bool,
+    art: bool,
+}
+
+async fn get_enabled() -> Json<GetEnabledResp> {
+    Json(GetEnabledResp {
+        literature: CONFIG.literature_enabled,
+        art: CONFIG.art_enabled,
+    })
+}
+
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct LiteratureMetadata {
     id: i32,
@@ -63,6 +77,10 @@ async fn get_literature_metadata_list(
     user: Option<User>,
     extract::State(state): extract::State<AppState>,
 ) -> Result<Json<Vec<LiteratureMetadata>>, (StatusCode, &'static str)> {
+    if !CONFIG.literature_enabled {
+        return Err((StatusCode::BAD_REQUEST, "literature not enabled"));
+    }
+
     let literatures = literature::Entity::find()
         .order_by_desc(literature::Column::Id)
         .all(&*state.db)
@@ -99,6 +117,10 @@ async fn get_literature(
     extract::Path(id): extract::Path<i32>,
     extract::State(state): extract::State<AppState>,
 ) -> Result<Json<literature::Model>, (StatusCode, &'static str)> {
+    if !CONFIG.literature_enabled {
+        return Err((StatusCode::BAD_REQUEST, "literature not enabled"));
+    }
+
     let literature = literature::Entity::find_by_id(id)
         .one(&*state.db)
         .await
@@ -118,6 +140,10 @@ async fn get_art(
     extract::Path(id): extract::Path<i32>,
     extract::State(state): extract::State<AppState>,
 ) -> Result<Bytes, (StatusCode, &'static str)> {
+    if !CONFIG.art_enabled {
+        return Err((StatusCode::BAD_REQUEST, "art not enabled"));
+    }
+
     let art = art::Entity::find_by_id(id)
         .one(&*state.db)
         .await
@@ -137,6 +163,10 @@ async fn get_art_thumbnail(
     extract::Path(id): extract::Path<i32>,
     extract::State(state): extract::State<AppState>,
 ) -> Result<Bytes, (StatusCode, &'static str)> {
+    if !CONFIG.art_enabled {
+        return Err((StatusCode::BAD_REQUEST, "art not enabled"));
+    }
+
     let art = art::Entity::find_by_id(id)
         .one(&*state.db)
         .await
@@ -167,6 +197,10 @@ async fn get_art_metadata_list(
     user: Option<User>,
     extract::State(state): extract::State<AppState>,
 ) -> Result<Json<Vec<ArtMetadata>>, (StatusCode, &'static str)> {
+    if !CONFIG.art_enabled {
+        return Err((StatusCode::BAD_REQUEST, "art not enabled"));
+    }
+
     let arts = art::Entity::find()
         .order_by_desc(art::Column::Id)
         .all(&*state.db)
@@ -204,6 +238,10 @@ async fn get_art_metadata(
     extract::Path(id): extract::Path<i32>,
     extract::State(state): extract::State<AppState>,
 ) -> Result<Json<ArtMetadata>, (StatusCode, &'static str)> {
+    if !CONFIG.art_enabled {
+        return Err((StatusCode::BAD_REQUEST, "art not enabled"));
+    }
+
     let art = art::Entity::find_by_id(id)
         .one(&*state.db)
         .await
