@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router-dom";
 import LoadingView from "./LoadingView";
 import { usePostArtVoteMutation } from "./MutationHooks";
 import NotEnabledView from "./NotEnabledView";
+import NotFoundView from "./NotFoundView";
 import {
   useArtMetadata,
   useArtVote,
@@ -47,8 +48,12 @@ export default function ArtView() {
     return <NotEnabledView />;
   }
 
-  if (isLoading || art == null) {
+  if (isLoading) {
     return <LoadingView />;
+  }
+
+  if (art == null) {
+    return <NotFoundView />;
   }
 
   const onVote = () => {

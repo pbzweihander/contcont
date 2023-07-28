@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import LoadingView from "./LoadingView";
 import { usePostLiteratureVoteMutation } from "./MutationHooks";
 import NotEnabledView from "./NotEnabledView";
+import NotFoundView from "./NotFoundView";
 import {
   useContestName,
   useEnabled,
@@ -48,8 +49,12 @@ export default function LiteratureView() {
     return <NotEnabledView />;
   }
 
-  if (isLoading || literature == null) {
+  if (isLoading) {
     return <LoadingView />;
+  }
+
+  if (literature == null) {
+    return <NotFoundView />;
   }
 
   const onVote = () => {
