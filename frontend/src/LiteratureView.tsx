@@ -95,6 +95,7 @@ export default function LiteratureView() {
             </Link>
           </h3>
           <p className="mb-4 whitespace-pre-line">{literature.text}</p>
+          <div className="divider" />
           {voteOpened?.opened ? (
             user != null ? (
               <div>

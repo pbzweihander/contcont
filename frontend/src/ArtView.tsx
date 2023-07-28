@@ -105,6 +105,7 @@ export default function ArtView() {
             }}
           />
           <p className="mb-4 whitespace-pre-line">{art.description}</p>
+          <div className="divider" />
           {voteOpened?.opened ? (
             user != null ? (
               <div>
