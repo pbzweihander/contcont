@@ -67,7 +67,7 @@ spec:
         - name: VOTING_CLOSE_AT
           value: {{ .Values.config.voting.closeAt }}
         - name: DATABASE_HOST
-          value: {{ .Values.config.postgres.serviceName }}
+          value: {{ .Release.Name }}-postgresql
         - name: DATABASE_PORT
           value: "5432"
         - name: DATABASE_USER
@@ -75,7 +75,7 @@ spec:
         - name: DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Values.config.postgres.secretName }}
+              name: {{ .Release.Name }}-postgresql
               key: postgres-password
         - name: POSTGRES_DATABASE
           value: postgres
