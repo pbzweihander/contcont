@@ -13,6 +13,7 @@ import LiteratureView from "./LiteratureView";
 import LoginView from "./LoginView";
 import MainView from "./MainView";
 import NavBar from "./NavBar";
+import NotFoundView from "./NotFoundView";
 
 const queryClient = new QueryClient();
 const axiosClient = createClient();
@@ -49,6 +50,8 @@ function App() {
                 }
               />
               <Route path="/art/:id" element={<ArtView />} />
+
+              <Route path="*" element={<NotFoundView />} />
             </Route>
           </Routes>
         </BrowserRouter>
