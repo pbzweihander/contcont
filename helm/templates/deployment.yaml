@@ -54,6 +54,10 @@ spec:
           value: {{ .Values.config.contestName }}
         - name: JWT_SECRET
           value: {{ .Values.config.jwtSecret | default (randAlphaNum 64) }}
+        - name: LITERATURE_ENABLED
+          value: {{ .Value.config.enabled.literature | quote }}
+        - name: ART_ENABLED
+          value: {{ .Value.config.enabled.art | quote }}
         - name: SUBMISSION_OPEN_AT
           value: {{ .Values.config.submission.openAt }}
         - name: SUBMISSION_CLOSE_AT

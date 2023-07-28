@@ -87,3 +87,6 @@ config:
   voting:
     openAt: ""
     closeAt: ""
+  enabled:
+    literature: true
+    art: true
