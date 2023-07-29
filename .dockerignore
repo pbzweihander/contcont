@@ -1,3 +1,4 @@
+frontend/dist/
 frontend/.eslintrc
 frontend/.gitignore
 frontend/node_modules/
