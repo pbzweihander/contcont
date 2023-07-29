@@ -90,3 +90,6 @@ config:
   enabled:
     literature: true
     art: true
+  misskey:
+    baseUrl: ""
+    apiKey: ""

@@ -79,6 +79,14 @@ spec:
               key: postgres-password
         - name: POSTGRES_DATABASE
           value: postgres
+        {{- if .Values.config.misskey.baseUrl }}
+        - name: MISSKEY_BASE_URL
+          value: {{ .Values.config.misskey.baseUrl }}
+        {{- end }}
+        {{- if .Values.config.misskey.apiKey }}
+        - name: MISSKEY_API_KEY
+          value: {{ .Values.config.misskey.apiKey }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
