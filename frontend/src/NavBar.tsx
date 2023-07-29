@@ -25,7 +25,7 @@ export default function NavBar() {
         </div>
         <div className="navbar-end p-2">
           {enabled?.literature && (
-            <div className="dropdown dropdown-end mr-2">
+            <div className="dropdown dropdown-end mr-2 hidden md:block">
               <label tabIndex={0} className="btn">
                 글
               </label>
@@ -43,8 +43,8 @@ export default function NavBar() {
             </div>
           )}
           {enabled?.art && (
-            <div className="dropdown-end dropdown mr-2">
-              <label tabIndex={0} className="btn">
+            <div className="dropdown-end dropdown mr-2 hidden md:block">
+              <label tabIndex={0} className="btn break-keep">
                 그림
               </label>
               <ul

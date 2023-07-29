@@ -79,8 +79,8 @@ export default function LiteratureView() {
           {literature.authorInstance} - {contestName}
         </title>
       </Helmet>
-      <div className="flex w-full justify-center">
-        <div className="w-full p-6 md:w-2/3">
+      <div className="flex w-full justify-center px-6 pb-10 pt-4">
+        <div className="w-full md:w-2/3">
           <h2 className="mb-4 text-xl">
             {literature.isNsfw && (
               <span className="badge badge-secondary mr-2">NSFW</span>

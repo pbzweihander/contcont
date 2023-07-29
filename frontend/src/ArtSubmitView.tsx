@@ -93,8 +93,8 @@ export default function ArtSubmitView() {
       <Helmet>
         <title>그림 제출 - {contestName}</title>
       </Helmet>
-      <div className="flex w-full justify-center p-4">
-        <form className="w-2/3" onSubmit={onSubmit}>
+      <div className="flex w-full justify-center px-6 pb-10 pt-4">
+        <form className="w-full md:w-2/3" onSubmit={onSubmit}>
           <div className="mb-2">
             <label className="label">
               <label className="label-text">제목</label>

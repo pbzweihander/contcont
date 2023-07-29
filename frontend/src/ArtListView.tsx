@@ -28,7 +28,7 @@ export default function ArtListView() {
       <Helmet>
         <title>그림 - {contestName}</title>
       </Helmet>
-      <div className="flex w-full flex-wrap gap-10 p-6">
+      <div className="flex w-full flex-wrap gap-10 px-6 pb-10 pt-4">
         {arts.map((art) => (
           <Link key={art.id} to={`/art/${art.id}`} className="w-full md:w-96">
             <div className="card shadow-xl">
