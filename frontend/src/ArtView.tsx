@@ -78,7 +78,7 @@ export default function ArtView() {
         </title>
       </Helmet>
       <div className="flex w-full justify-center">
-        <div className="w-2/3 p-4">
+        <div className="w-full p-6 md:w-2/3">
           <h2 className="mb-4 text-xl">
             {art.isNsfw && (
               <span className="badge badge-secondary mr-2">NSFW</span>
@@ -94,7 +94,7 @@ export default function ArtView() {
             src={`/api/contest/art/${art.id}`}
             alt={art.title}
             className={classNames(
-              "mb-4",
+              "mb-4 w-full md:w-fit",
               art.isNsfw && "cursor-pointer",
               art.isNsfw && !isBlurRemoved && "blur-lg"
             )}

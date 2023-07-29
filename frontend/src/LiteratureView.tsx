@@ -80,7 +80,7 @@ export default function LiteratureView() {
         </title>
       </Helmet>
       <div className="flex w-full justify-center">
-        <div className="w-2/3 p-4">
+        <div className="w-full p-6 md:w-2/3">
           <h2 className="mb-4 text-xl">
             {literature.isNsfw && (
               <span className="badge badge-secondary mr-2">NSFW</span>

@@ -28,10 +28,10 @@ export default function ArtListView() {
       <Helmet>
         <title>그림 - {contestName}</title>
       </Helmet>
-      <div className="flex w-full flex-wrap gap-10 p-4">
+      <div className="flex w-full flex-wrap gap-10 p-6">
         {arts.map((art) => (
-          <Link key={art.id} to={`/art/${art.id}`} className="w-fit">
-            <div className="card w-96 shadow-xl">
+          <Link key={art.id} to={`/art/${art.id}`} className="w-full md:w-96">
+            <div className="card shadow-xl">
               <figure>
                 <img
                   src={`/api/contest/art/thumbnail/${art.id}`}
