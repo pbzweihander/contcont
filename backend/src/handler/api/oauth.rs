@@ -118,7 +118,8 @@ async fn post_authorize(
     extract::State(state): extract::State<AppState>,
     Json(req): Json<PostAuthorizeReq>,
 ) -> Result<(HeaderMap, Json<PostAuthorizeResp>), (StatusCode, &'static str)> {
-    let instance_url = Url::parse(&format!("https://{}", req.instance)).map_err(|err| {
+    let (_, instance_name) = req.instance.rsplit_once('@').unwrap_or(("", &req.instance));
+    let instance_url = Url::parse(&format!("https://{}", instance_name)).map_err(|err| {
         tracing::error!(%err, "failed to parse instance URL");
         (StatusCode::BAD_REQUEST, "failed to parse instance URL")
     })?;
@@ -149,7 +150,7 @@ async fn post_authorize(
         )
     })?;
 
-    let instance = instance::Entity::find_by_id(&req.instance)
+    let instance = instance::Entity::find_by_id(instance_name)
         .one(&tx)
         .await
         .map_err(|err| {
@@ -165,7 +166,7 @@ async fn post_authorize(
         } else {
             let resp = state
                 .http_client
-                .post(format!("https://{}/api/app/create", req.instance))
+                .post(format!("https://{}/api/app/create", instance_name))
                 .json(&MisskeyAppCreateReq {
                     name: format!("{}/{}", env!("CARGO_PKG_NAME"), CONFIG.contest_name),
                     description: "contest controller".to_string(),
@@ -192,7 +193,7 @@ async fn post_authorize(
                 })?;
 
             let instance_activemodel = instance::ActiveModel {
-                hostname: ActiveValue::Set(req.instance.clone()),
+                hostname: ActiveValue::Set(instance_name.to_string()),
                 client_id: ActiveValue::Set(resp.id),
                 client_secret: ActiveValue::Set(resp.secret),
             };
@@ -218,7 +219,7 @@ async fn post_authorize(
             .http_client
             .post(format!(
                 "https://{}/api/auth/session/generate",
-                req.instance
+                instance_name
             ))
             .json(&MisskeySessionGenerateReq {
                 app_secret: instance.client_secret,
@@ -267,7 +268,7 @@ async fn post_authorize(
         } else {
             let resp = state
                 .http_client
-                .post(format!("https://{}/api/v1/apps", req.instance))
+                .post(format!("https://{}/api/v1/apps", instance_name))
                 .json(&MastodonPostAppReq {
                     client_name: format!("{}/{}", env!("CARGO_PKG_NAME"), CONFIG.contest_name),
                     redirect_uris: redirect_url.clone(),
@@ -294,7 +295,7 @@ async fn post_authorize(
                 })?;
 
             let instance_activemodel = instance::ActiveModel {
-                hostname: ActiveValue::Set(req.instance.clone()),
+                hostname: ActiveValue::Set(instance_name.to_string()),
                 client_id: ActiveValue::Set(resp.client_id),
                 client_secret: ActiveValue::Set(resp.client_secret),
             };
@@ -323,7 +324,7 @@ async fn post_authorize(
         );
 
         let mut url =
-            Url::parse(&format!("https://{}/oauth/authorize", req.instance)).map_err(|err| {
+            Url::parse(&format!("https://{}/oauth/authorize", instance_name)).map_err(|err| {
                 tracing::error!(%err, "failed to parse redirect URL");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
