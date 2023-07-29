@@ -126,8 +126,10 @@ async fn post_literature(
             if let Err(err) = post_note(
                 &state.http_client,
                 format!(
-                    "**{}**에 새 글이 등록되었어요!\n> {}\n{}보러가기: {}",
+                    "**{}**에 새 글이 등록되었어요!\n> {}@{} - {}\n{}보러가기: {}",
                     CONFIG.contest_name,
+                    literature.author_handle,
+                    literature.author_instance,
                     literature.title,
                     if literature.is_nsfw {
                         "**!!!NSFW!!!**\n"
@@ -307,13 +309,15 @@ async fn post_art(
         )
     })?;
 
-    match CONFIG.base_url.join(&format!("./literature/{}", art.id)) {
+    match CONFIG.base_url.join(&format!("./art/{}", art.id)) {
         Ok(url) => {
             if let Err(err) = post_note(
                 &state.http_client,
                 format!(
-                    "**{}**에 새 글이 등록되었어요!\n> {}\n{}보러가기: {}",
+                    "**{}**에 새 그림이 등록되었어요!\n> {}@{} - {}\n{}보러가기: {}",
                     CONFIG.contest_name,
+                    art.author_handle,
+                    art.author_instance,
                     art.title,
                     if art.is_nsfw { "**!!!NSFW!!!**\n" } else { "" },
                     url
