@@ -95,6 +95,11 @@ pub struct Config {
     pub voting_open_at: OffsetDateTime,
     #[serde(with = "time::serde::rfc3339")]
     pub voting_close_at: OffsetDateTime,
+
+    #[serde(default)]
+    pub misskey_base_url: Option<Url>,
+    #[serde(default)]
+    pub misskey_api_key: Option<String>,
 }
 
 impl Config {

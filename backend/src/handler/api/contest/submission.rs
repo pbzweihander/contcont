@@ -18,6 +18,7 @@ use crate::{
     config::CONFIG,
     entity::{art, literature},
     handler::{api::oauth::User, AppState},
+    misskey::post_note,
 };
 
 use super::{ArtMetadata, GetOpenedResp};
@@ -116,6 +117,35 @@ async fn post_literature(
             "failed to commit to database",
         )
     })?;
+
+    match CONFIG
+        .base_url
+        .join(&format!("./literature/{}", literature.id))
+    {
+        Ok(url) => {
+            if let Err(err) = post_note(
+                &state.http_client,
+                format!(
+                    "**{}**에 새 글이 등록되었어요!\n> {}\n{}보러가기: {}",
+                    CONFIG.contest_name,
+                    literature.title,
+                    if literature.is_nsfw {
+                        "**!!!NSFW!!!**\n"
+                    } else {
+                        ""
+                    },
+                    url
+                ),
+            )
+            .await
+            {
+                tracing::warn!(%err, "failed to post note");
+            }
+        }
+        Err(err) => {
+            tracing::warn!(%err, "failed to join literature URL");
+        }
+    }
 
     Ok(Json(literature))
 }
@@ -276,6 +306,28 @@ async fn post_art(
             "failed to commit to database",
         )
     })?;
+
+    match CONFIG.base_url.join(&format!("./literature/{}", art.id)) {
+        Ok(url) => {
+            if let Err(err) = post_note(
+                &state.http_client,
+                format!(
+                    "**{}**에 새 글이 등록되었어요!\n> {}\n{}보러가기: {}",
+                    CONFIG.contest_name,
+                    art.title,
+                    if art.is_nsfw { "**!!!NSFW!!!**\n" } else { "" },
+                    url
+                ),
+            )
+            .await
+            {
+                tracing::warn!(%err, "failed to post note");
+            }
+        }
+        Err(err) => {
+            tracing::warn!(%err, "failed to join literature URL");
+        }
+    }
 
     Ok(Json(ArtMetadata {
         id: art.id,

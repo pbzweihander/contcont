@@ -4,6 +4,7 @@ use sea_orm::Database;
 mod config;
 mod entity;
 mod handler;
+mod misskey;
 mod utils;
 
 async fn shutdown_signal() {
