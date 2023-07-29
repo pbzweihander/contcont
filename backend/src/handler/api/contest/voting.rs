@@ -51,7 +51,7 @@ async fn get_literature(
     }
 
     let tx = state.db.begin().await.map_err(|err| {
-        tracing::error!(%err, "failed to begin transaction");
+        tracing::error!(?err, "failed to begin transaction");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to begin transaction",
@@ -68,7 +68,7 @@ async fn get_literature(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -84,7 +84,7 @@ async fn get_literature(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -112,7 +112,7 @@ async fn post_literature(
     }
 
     let tx = state.db.begin().await.map_err(|err| {
-        tracing::error!(%err, "failed to begin transaction");
+        tracing::error!(?err, "failed to begin transaction");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to begin transaction",
@@ -123,7 +123,7 @@ async fn post_literature(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -143,7 +143,7 @@ async fn post_literature(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -162,7 +162,7 @@ async fn post_literature(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -184,7 +184,7 @@ async fn post_literature(
         .insert(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to insert to database");
+            tracing::error!(?err, "failed to insert to database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to insert to database",
@@ -192,7 +192,7 @@ async fn post_literature(
         })?;
 
     tx.commit().await.map_err(|err| {
-        tracing::error!(%err, "failed to commit to database");
+        tracing::error!(?err, "failed to commit to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to commit to database",
@@ -212,7 +212,7 @@ async fn get_art(
     }
 
     let tx = state.db.begin().await.map_err(|err| {
-        tracing::error!(%err, "failed to begin transaction");
+        tracing::error!(?err, "failed to begin transaction");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to begin transaction",
@@ -229,7 +229,7 @@ async fn get_art(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -245,7 +245,7 @@ async fn get_art(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -273,7 +273,7 @@ async fn post_art(
     }
 
     let tx = state.db.begin().await.map_err(|err| {
-        tracing::error!(%err, "failed to begin transaction");
+        tracing::error!(?err, "failed to begin transaction");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to begin transaction",
@@ -284,7 +284,7 @@ async fn post_art(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -304,7 +304,7 @@ async fn post_art(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -323,7 +323,7 @@ async fn post_art(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -342,7 +342,7 @@ async fn post_art(
     };
 
     art_vote_activemodel.insert(&tx).await.map_err(|err| {
-        tracing::error!(%err, "failed to insert to database");
+        tracing::error!(?err, "failed to insert to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to insert to database",
@@ -350,7 +350,7 @@ async fn post_art(
     })?;
 
     tx.commit().await.map_err(|err| {
-        tracing::error!(%err, "failed to commit to database");
+        tracing::error!(?err, "failed to commit to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to commit to database",

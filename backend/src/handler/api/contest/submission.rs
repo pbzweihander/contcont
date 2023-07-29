@@ -67,7 +67,7 @@ async fn post_literature(
     }
 
     let tx = state.db.begin().await.map_err(|err| {
-        tracing::error!(%err, "failed to begin transaction");
+        tracing::error!(?err, "failed to begin transaction");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to begin transaction",
@@ -83,7 +83,7 @@ async fn post_literature(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -103,7 +103,7 @@ async fn post_literature(
     };
 
     let literature = literature_activemodel.insert(&tx).await.map_err(|err| {
-        tracing::error!(%err, "failed to insert to database");
+        tracing::error!(?err, "failed to insert to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to insert to database",
@@ -111,7 +111,7 @@ async fn post_literature(
     })?;
 
     tx.commit().await.map_err(|err| {
-        tracing::error!(%err, "failed to commit to database");
+        tracing::error!(?err, "failed to commit to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to commit to database",
@@ -141,11 +141,11 @@ async fn post_literature(
             )
             .await
             {
-                tracing::warn!(%err, "failed to post note");
+                tracing::warn!(?err, "failed to post note");
             }
         }
         Err(err) => {
-            tracing::warn!(%err, "failed to join literature URL");
+            tracing::warn!(?err, "failed to join literature URL");
         }
     }
 
@@ -167,7 +167,7 @@ async fn post_art(
     let mut data = None;
 
     while let Some(field) = req.next_field().await.map_err(|err| {
-        tracing::error!(%err, "failed to read from multipart data");
+        tracing::error!(?err, "failed to read from multipart data");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to read from multipart data",
@@ -179,7 +179,7 @@ async fn post_art(
         ))?;
         if name == "title" {
             title = Some(field.text().await.map_err(|err| {
-                tracing::error!(%err, "failed to read from multipart field");
+                tracing::error!(?err, "failed to read from multipart field");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to read from multipart field",
@@ -187,7 +187,7 @@ async fn post_art(
             })?);
         } else if name == "description" {
             description = Some(field.text().await.map_err(|err| {
-                tracing::error!(%err, "failed to read from multipart field");
+                tracing::error!(?err, "failed to read from multipart field");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to read from multipart field",
@@ -196,7 +196,7 @@ async fn post_art(
         } else if name == "isNsfw" {
             is_nsfw = Some(
                 field.text().await.map_err(|err| {
-                    tracing::error!(%err, "failed to read from multipart field");
+                    tracing::error!(?err, "failed to read from multipart field");
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to read from multipart field",
@@ -205,7 +205,7 @@ async fn post_art(
             );
         } else if name == "data" {
             data = Some(field.bytes().await.map_err(|err| {
-                tracing::error!(%err, "failed to read from multipart field");
+                tracing::error!(?err, "failed to read from multipart field");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to read from multipart field",
@@ -233,7 +233,7 @@ async fn post_art(
     }
 
     let tx = state.db.begin().await.map_err(|err| {
-        tracing::error!(%err, "failed to begin transaction");
+        tracing::error!(?err, "failed to begin transaction");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to begin transaction",
@@ -249,7 +249,7 @@ async fn post_art(
         .count(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -265,7 +265,7 @@ async fn post_art(
         [ThumbnailSize::Medium],
     )
     .map_err(|err| {
-        tracing::error!(%err, "failed to generate thumbnail");
+        tracing::error!(?err, "failed to generate thumbnail");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to generate thumbnail",
@@ -275,7 +275,7 @@ async fn post_art(
 
     let mut thumbnail_data = Cursor::new(Vec::new());
     thumbnail.write_png(&mut thumbnail_data).map_err(|err| {
-        tracing::error!(%err, "failed to write thumbnail data");
+        tracing::error!(?err, "failed to write thumbnail data");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to write thumbnail data",
@@ -294,7 +294,7 @@ async fn post_art(
     };
 
     let art = art_activemodel.insert(&tx).await.map_err(|err| {
-        tracing::error!(%err, "failed to insert to database");
+        tracing::error!(?err, "failed to insert to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to insert to database",
@@ -302,7 +302,7 @@ async fn post_art(
     })?;
 
     tx.commit().await.map_err(|err| {
-        tracing::error!(%err, "failed to commit to database");
+        tracing::error!(?err, "failed to commit to database");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to commit to database",
@@ -325,11 +325,11 @@ async fn post_art(
             )
             .await
             {
-                tracing::warn!(%err, "failed to post note");
+                tracing::warn!(?err, "failed to post note");
             }
         }
         Err(err) => {
-            tracing::warn!(%err, "failed to join literature URL");
+            tracing::warn!(?err, "failed to join literature URL");
         }
     }
 

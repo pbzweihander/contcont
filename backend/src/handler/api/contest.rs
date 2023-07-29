@@ -86,7 +86,7 @@ async fn get_literature_metadata_list(
         .all(&*state.db)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -125,7 +125,7 @@ async fn get_literature(
         .one(&*state.db)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -148,7 +148,7 @@ async fn get_art(
         .one(&*state.db)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -171,7 +171,7 @@ async fn get_art_thumbnail(
         .one(&*state.db)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -206,7 +206,7 @@ async fn get_art_metadata_list(
         .all(&*state.db)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -246,7 +246,7 @@ async fn get_art_metadata(
         .one(&*state.db)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",

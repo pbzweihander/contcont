@@ -120,13 +120,13 @@ async fn post_authorize(
 ) -> Result<(HeaderMap, Json<PostAuthorizeResp>), (StatusCode, &'static str)> {
     let (_, instance_name) = req.instance.rsplit_once('@').unwrap_or(("", &req.instance));
     let instance_url = Url::parse(&format!("https://{}", instance_name)).map_err(|err| {
-        tracing::error!(%err, "failed to parse instance URL");
+        tracing::error!(?err, "failed to parse instance URL");
         (StatusCode::BAD_REQUEST, "failed to parse instance URL")
     })?;
     let instance_type = detect_instance(&state.http_client, instance_url)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to detect instance type");
+            tracing::error!(?err, "failed to detect instance type");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to detect instance type",
@@ -135,7 +135,7 @@ async fn post_authorize(
         .ok_or((StatusCode::BAD_REQUEST, "failed to detect instance type"))?;
 
     let redirect_url = CONFIG.base_url.join("/api/oauth/redirect").map_err(|err| {
-        tracing::error!(%err, "failed to generate redirect URL");
+        tracing::error!(?err, "failed to generate redirect URL");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to generate redirect URL",
@@ -143,7 +143,7 @@ async fn post_authorize(
     })?;
 
     let tx = state.db.begin().await.map_err(|err| {
-        tracing::error!(%err, "failed to begin transaction");
+        tracing::error!(?err, "failed to begin transaction");
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             "failed to begin transaction",
@@ -154,7 +154,7 @@ async fn post_authorize(
         .one(&tx)
         .await
         .map_err(|err| {
-            tracing::error!(%err, "failed to query database");
+            tracing::error!(?err, "failed to query database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to query database",
@@ -176,7 +176,7 @@ async fn post_authorize(
                 .send()
                 .await
                 .map_err(|err| {
-                    tracing::error!(%err, "failed to request to Misskey instance");
+                    tracing::error!(?err, "failed to request to Misskey instance");
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to request to Misskey instance",
@@ -185,7 +185,7 @@ async fn post_authorize(
                 .json::<MisskeyAppCreateResp>()
                 .await
                 .map_err(|err| {
-                    tracing::error!(%err, "failed to parse Misskey response");
+                    tracing::error!(?err, "failed to parse Misskey response");
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to parse Misskey response",
@@ -199,7 +199,7 @@ async fn post_authorize(
             };
 
             instance_activemodel.insert(&tx).await.map_err(|err| {
-                tracing::error!(%err, "failed to insert to database");
+                tracing::error!(?err, "failed to insert to database");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to insert to database",
@@ -208,7 +208,7 @@ async fn post_authorize(
         };
 
         tx.commit().await.map_err(|err| {
-            tracing::error!(%err, "failed to commit to database");
+            tracing::error!(?err, "failed to commit to database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to commit to database",
@@ -227,7 +227,7 @@ async fn post_authorize(
             .send()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to request to Misskey instance");
+                tracing::error!(?err, "failed to request to Misskey instance");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to request to Misskey instance",
@@ -236,7 +236,7 @@ async fn post_authorize(
             .json::<MisskeySessionGenerateResp>()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to parse Misskey response");
+                tracing::error!(?err, "failed to parse Misskey response");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to parse Misskey response",
@@ -252,7 +252,7 @@ async fn post_authorize(
             )
             .parse()
             .map_err(|err| {
-                tracing::error!(%err, "failed to generate session cookie value");
+                tracing::error!(?err, "failed to generate session cookie value");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to generate session cookie value",
@@ -278,7 +278,7 @@ async fn post_authorize(
                 .send()
                 .await
                 .map_err(|err| {
-                    tracing::error!(%err, "failed to request to Mastodon instance");
+                    tracing::error!(?err, "failed to request to Mastodon instance");
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to request to Mastodon instance",
@@ -287,7 +287,7 @@ async fn post_authorize(
                 .json::<MastodonPostAppResp>()
                 .await
                 .map_err(|err| {
-                    tracing::error!(%err, "failed to parse Mastodon response");
+                    tracing::error!(?err, "failed to parse Mastodon response");
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to parse Mastodon response",
@@ -301,7 +301,7 @@ async fn post_authorize(
             };
 
             instance_activemodel.insert(&tx).await.map_err(|err| {
-                tracing::error!(%err, "failed to insert to database");
+                tracing::error!(?err, "failed to insert to database");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to insert to database",
@@ -310,7 +310,7 @@ async fn post_authorize(
         };
 
         tx.commit().await.map_err(|err| {
-            tracing::error!(%err, "failed to commit to database");
+            tracing::error!(?err, "failed to commit to database");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to commit to database",
@@ -325,7 +325,7 @@ async fn post_authorize(
 
         let mut url =
             Url::parse(&format!("https://{}/oauth/authorize", instance_name)).map_err(|err| {
-                tracing::error!(%err, "failed to parse redirect URL");
+                tracing::error!(?err, "failed to parse redirect URL");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to parse redirect URL",
@@ -344,7 +344,7 @@ async fn post_authorize(
             format!("LOGIN_SESSION={}; SameSite=Lax; Path=/", login_state)
                 .parse()
                 .map_err(|err| {
-                    tracing::error!(%err, "failed to generate session cookie value");
+                    tracing::error!(?err, "failed to generate session cookie value");
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to generate session cookie value",
@@ -427,7 +427,7 @@ async fn get_redirect(
             .one(&*state.db)
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to query database");
+                tracing::error!(?err, "failed to query database");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to query database",
@@ -448,7 +448,7 @@ async fn get_redirect(
             .send()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to request to Misskey instance");
+                tracing::error!(?err, "failed to request to Misskey instance");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to request to Misskey instance",
@@ -457,7 +457,7 @@ async fn get_redirect(
             .json::<MisskeyUserkeyResp>()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to parse Misskey response");
+                tracing::error!(?err, "failed to parse Misskey response");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to parse Misskey response",
@@ -492,7 +492,7 @@ async fn get_redirect(
             .one(&*state.db)
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to query database");
+                tracing::error!(?err, "failed to query database");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to query database",
@@ -506,7 +506,7 @@ async fn get_redirect(
             .json(&MastodonOauthTokenReq {
                 grant_type: "authorization_code".to_string(),
                 redirect_uri: CONFIG.base_url.join("/api/oauth/redirect").map_err(|err| {
-                    tracing::error!(%err, "failed to generate redirect URL");
+                    tracing::error!(?err, "failed to generate redirect URL");
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "failed to generate redirect URL",
@@ -520,7 +520,7 @@ async fn get_redirect(
             .send()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to request to Mastodon instance");
+                tracing::error!(?err, "failed to request to Mastodon instance");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to request to Mastodon instance",
@@ -529,7 +529,7 @@ async fn get_redirect(
             .json::<MastodonOauthTokenResp>()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to parse Mastodon response");
+                tracing::error!(?err, "failed to parse Mastodon response");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to parse Mastodon response",
@@ -549,7 +549,7 @@ async fn get_redirect(
             .send()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to request to Mastodon instance");
+                tracing::error!(?err, "failed to request to Mastodon instance");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to request to Mastodon instance",
@@ -558,7 +558,7 @@ async fn get_redirect(
             .json::<MastodonVerifyCredentialsResp>()
             .await
             .map_err(|err| {
-                tracing::error!(%err, "failed to parse Mastodon response");
+                tracing::error!(?err, "failed to parse Mastodon response");
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
                     "failed to parse Mastodon response",
@@ -579,7 +579,7 @@ async fn get_redirect(
 
     let session_token = jsonwebtoken::encode(&Default::default(), &user, &CONFIG.jwt_secret.0)
         .map_err(|err| {
-            tracing::error!(%err, "failed to generate JWT token");
+            tracing::error!(?err, "failed to generate JWT token");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to generate JWT token",
@@ -592,7 +592,7 @@ async fn get_redirect(
     header_map.insert(
         header::SET_COOKIE,
         cookie.parse().map_err(|err| {
-            tracing::error!(%err, "failed to generate session cookie value");
+            tracing::error!(?err, "failed to generate session cookie value");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 "failed to generate session cookie value",
