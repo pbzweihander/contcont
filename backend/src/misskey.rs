@@ -21,8 +21,7 @@ pub async fn post_note(http_client: &reqwest::Client, text: String) -> Result<()
             .post(url)
             .json(&PostCreateNoteReq {
                 i: misskey_api_key.to_string(),
-                // visibility: "home".to_string(),
-                visibility: "followers".to_string(),
+                visibility: "home".to_string(),
                 text,
             })
             .send()
