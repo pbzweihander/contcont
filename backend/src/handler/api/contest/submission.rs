@@ -21,7 +21,7 @@ use crate::{
     misskey::post_note,
 };
 
-use super::{ArtMetadata, GetOpenedResp};
+use super::GetOpenedResp;
 
 pub(super) fn create_router() -> Router<AppState> {
     Router::new()
@@ -156,7 +156,7 @@ async fn post_art(
     user: User,
     extract::State(state): extract::State<AppState>,
     mut req: Multipart,
-) -> Result<Json<ArtMetadata>, (StatusCode, &'static str)> {
+) -> Result<Json<art::Metadata>, (StatusCode, &'static str)> {
     if !CONFIG.art_enabled {
         return Err((StatusCode::BAD_REQUEST, "art not enabled"));
     }
@@ -333,7 +333,7 @@ async fn post_art(
         }
     }
 
-    Ok(Json(ArtMetadata {
+    Ok(Json(art::Metadata {
         id: art.id,
         title: art.title,
         description: art.description,

@@ -18,7 +18,7 @@ rand = "0.8.5"
 rand_seeder = "0.2.3"
 random-string = "1.0.0"
 reqwest = { version = "0.11.18", default-features = false, features = ["rustls-tls", "json"] }
-sea-orm = { version = "0.11.3", default-features = false, features = ["macros", "with-json", "with-rust_decimal", "with-bigdecimal", "with-uuid", "sqlx-postgres", "runtime-tokio-rustls", "with-time"] }
+sea-orm = { version = "0.12.1", default-features = false, features = ["macros", "with-json", "with-rust_decimal", "with-bigdecimal", "with-uuid", "sqlx-postgres", "runtime-tokio-rustls", "with-time"] }
 serde = { version = "1.0.173", features = ["derive"] }
 thumbnailer = "0.5.1"
 time = { version = "0.3.23", features = ["formatting", "macros", "parsing", "serde", "serde-well-known"] }

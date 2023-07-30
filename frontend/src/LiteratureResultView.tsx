@@ -6,20 +6,32 @@ import NotEnabledView from "./NotEnabledView";
 import {
   useContestName,
   useEnabled,
-  useLiteratureMetadatas,
+  useLiteratureResults,
+  useResultOpened,
 } from "./QueryHooks";
+import ResultNotOpenedView from "./ResultNotOpenedView";
 
-export default function LiteratureListView() {
+export default function LiteratureResultView() {
   const { data: contestName } = useContestName();
   const { data: enabled, isLoading: isEnabledLoading } = useEnabled();
-  const { data: literatures, isLoading } = useLiteratureMetadatas();
+  const { data: opened, isLoading: isOpenedLoading } = useResultOpened();
+  const { data: literatures, isLoading } = useLiteratureResults();
 
-  if (isEnabledLoading || enabled == null) {
+  if (
+    isEnabledLoading ||
+    isOpenedLoading ||
+    enabled == null ||
+    opened == null
+  ) {
     return <LoadingView />;
   }
 
   if (!enabled.literature) {
     return <NotEnabledView />;
+  }
+
+  if (!opened.opened) {
+    return <ResultNotOpenedView openAt={opened.openAt} />;
   }
 
   if (isLoading || literatures == null) {
@@ -36,6 +48,9 @@ export default function LiteratureListView() {
           {literatures.map((literature) => (
             <li key={literature.id} className="p-2">
               <Link to={`/literature/${literature.id}`}>
+                <span className="badge badge-primary mr-2">
+                  {literature.voteCount}
+                </span>
                 {literature.isNsfw && (
                   <span className="badge badge-secondary mr-2">NSFW</span>
                 )}

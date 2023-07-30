@@ -6,10 +6,12 @@ import {
   ArtMetadata,
   GetEnabledResp,
   GetOpenedResp,
+  GetResultOpenedResp,
   Literature,
   LiteratureMetadata,
   User,
   Vote,
+  WithVoteCount,
 } from "./HttpTypes";
 
 async function get<T>(
@@ -136,5 +138,41 @@ export function useArtVote(
       return undefined;
     }
     return await get<Vote>(client, `/api/contest/voting/art/${id}`);
+  });
+}
+
+export function useResultOpened(): UseQueryResult<
+  GetResultOpenedResp,
+  AxiosError
+> {
+  const client = useAxiosClient();
+  return useQuery(["contest/result/opened"], async () => {
+    return await get<GetOpenedResp>(client, "/api/contest/result/opened");
+  });
+}
+
+export function useLiteratureResults(): UseQueryResult<
+  WithVoteCount<LiteratureMetadata>[],
+  AxiosError
+> {
+  const client = useAxiosClient();
+  return useQuery(["contest/result/literature"], async () => {
+    return await get<WithVoteCount<LiteratureMetadata>[]>(
+      client,
+      "/api/contest/result/literature"
+    );
+  });
+}
+
+export function useArtResults(): UseQueryResult<
+  WithVoteCount<ArtMetadata>[],
+  AxiosError
+> {
+  const client = useAxiosClient();
+  return useQuery(["contest/result/art"], async () => {
+    return await get<WithVoteCount<ArtMetadata>[]>(
+      client,
+      "/api/contest/result/art"
+    );
   });
 }

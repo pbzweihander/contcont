@@ -28,6 +28,11 @@ export default function MainView() {
                 감상 / 투표
               </Link>
             </li>
+            <li>
+              <Link to="/literature/result" className="text-lg">
+                결과 확인
+              </Link>
+            </li>
           </ul>
         )}
         {enabled?.art && (
@@ -43,6 +48,11 @@ export default function MainView() {
             <li>
               <Link to="/art" className="text-lg">
                 감상 / 투표
+              </Link>
+            </li>
+            <li>
+              <Link to="/art/result" className="text-lg">
+                결과 확인
               </Link>
             </li>
           </ul>

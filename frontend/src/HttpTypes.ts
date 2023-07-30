@@ -69,3 +69,10 @@ export interface Vote {
 export interface PostVoteReq {
   id: number;
 }
+
+export interface GetResultOpenedResp {
+  opened: boolean;
+  openAt: string;
+}
+
+export type WithVoteCount<M> = { voteCount: number } & M;
