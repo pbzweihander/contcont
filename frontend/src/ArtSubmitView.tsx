@@ -110,6 +110,22 @@ export default function ArtSubmitView() {
             />
           </div>
           <div className="mb-2">
+            <label className="label">
+              <label className="label-text" />
+              <label className="label-text-alt">
+                PNG 파일만 업로드할 수 있어요.
+              </label>
+            </label>
+            <input
+              type="file"
+              accept="image/png"
+              className="file-input file-input-bordered w-full"
+              onChange={(e) => {
+                setFile(e.target.files?.[0]);
+              }}
+            />
+          </div>
+          <div className="mb-2">
             <label className="label w-fit cursor-pointer">
               <input
                 type="checkbox"
@@ -121,16 +137,6 @@ export default function ArtSubmitView() {
               />
               <span className="label-text ml-2">NSFW</span>
             </label>
-          </div>
-          <div className="mb-2">
-            <input
-              type="file"
-              accept="image/png"
-              className="file-input file-input-bordered w-full"
-              onChange={(e) => {
-                setFile(e.target.files?.[0]);
-              }}
-            />
           </div>
           <div className="mb-2">
             <label className="label">
