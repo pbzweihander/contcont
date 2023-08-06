@@ -223,7 +223,7 @@ async fn post_art(
         return Err((StatusCode::BAD_REQUEST, "too long text"));
     }
 
-    if data.len() > 1024 * 1024 * 100 {
+    if data.len() > 1024 * 1024 * 50 {
         return Err((StatusCode::BAD_REQUEST, "too large image"));
     }
 
