@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use axum::{http::Request, middleware::Next, response::Response, Router};
+use axum::{
+    extract::DefaultBodyLimit, http::Request, middleware::Next, response::Response, Router,
+};
 use sea_orm::DatabaseConnection;
 use tower_http::services::{ServeDir, ServeFile};
 
@@ -36,6 +38,7 @@ pub fn create_router(db: DatabaseConnection) -> Router {
     Router::new()
         .nest("/api", api)
         .with_state(state)
+        .layer(DefaultBodyLimit::max(1024 * 1024 * 100))
         .nest_service(
             "/",
             ServeDir::new(&CONFIG.static_files_directory_path).fallback(ServeFile::new(

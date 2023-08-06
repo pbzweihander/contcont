@@ -70,7 +70,8 @@ export default function ArtSubmitView() {
     title.length > 100 ||
     description === "" ||
     description.length > 2000 ||
-    file == null;
+    file == null ||
+    file.size > 1024 * 1024 * 100;
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -113,7 +114,7 @@ export default function ArtSubmitView() {
             <label className="label">
               <label className="label-text" />
               <label className="label-text-alt">
-                PNG 파일만 업로드할 수 있어요.
+                100MB 이하의 PNG 파일만 업로드할 수 있어요.
               </label>
             </label>
             <input
